@@ -9,19 +9,16 @@
 {- HLINT ignore "Use camelCase" -}
 {- HLINT ignore "Use let" -}
 
-module Data.RdsData.Migration.ConnectionSpec
+module Test.Data.RdsData.Migration.ConnectionSpec
   ( tasty_rds_integration_test,
   ) where
 
-import           Amazonka.Env                              (Env)
-import qualified Amazonka.RDSData.ExecuteStatement         as AWS
-import qualified Amazonka.Types                            as AWS
-import           Control.Monad.IO.Class                    (MonadIO)
+import           Amazonka.Env                                   (Env)
+import qualified Amazonka.RDSData.ExecuteStatement              as AWS
+import qualified Amazonka.Types                                 as AWS
+import           Control.Monad.IO.Class                         (MonadIO)
 import           Data.Function
 import           Data.Generics.Product.Any
-import           Data.RdsData.Migration.Polysemy.Cluster
-import           Data.RdsData.Migration.Polysemy.Env
-import           Data.RdsData.Migration.Polysemy.Workspace
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.Hedgehog
 import           HaskellWorks.Prelude
@@ -29,12 +26,15 @@ import           HaskellWorks.TestContainers.LocalStack
 import           Lens.Micro
 import           Polysemy
 import           Polysemy.Error
-import           Polysemy.Log.Effect.DataLog               (DataLog)
+import           Polysemy.Log.Effect.DataLog                    (DataLog)
 import           Polysemy.Reader
 import           Polysemy.Resource
-import qualified Test.Tasty                                as Tasty
-import qualified Test.Tasty.Hedgehog                       as H
-import qualified TestContainers.Tasty                      as TC
+import           Test.Data.RdsData.Migration.Polysemy.Cluster
+import           Test.Data.RdsData.Migration.Polysemy.Env
+import           Test.Data.RdsData.Migration.Polysemy.Workspace
+import qualified Test.Tasty                                     as Tasty
+import qualified Test.Tasty.Hedgehog                            as H
+import qualified TestContainers.Tasty                           as TC
 
 newtype RdsDataMigrationError = RdsDataMigrationError Text
   deriving (Show)
@@ -100,7 +100,7 @@ initialiseDb = do
   executeStatement_
     "CREATE INDEX idx_migration_deployed_by ON migration (deployed_by);"
 
--- cabal test rds-data-migration-test --test-options "--pattern \"/RDS integration test/\""
+-- cabal test rds-data-test --test-options "--pattern \"/RDS integration test/\""
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
   TC.withContainers setupContainers $ \getContainer ->

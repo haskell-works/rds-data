@@ -12,7 +12,7 @@
 {- HLINT ignore "Redundant pure" -}
 {- HLINT ignore "Use let" -}
 
-module Data.RdsData.Migration.Polysemy.Env
+module Test.Data.RdsData.Migration.Polysemy.Env
   ( AwsResourceArn(..),
     AwsSecretArn(..),
     runLocalTestEnv,
@@ -23,22 +23,22 @@ module Data.RdsData.Migration.Polysemy.Env
     newBatchExecuteStatement,
   ) where
 
-import qualified Amazonka                                  as AWS
-import qualified Amazonka.RDSData                          as AWS
+import qualified Amazonka                                   as AWS
+import qualified Amazonka.RDSData                           as AWS
 import           Data.Generics.Product.Any
-import           Data.RdsData.Migration.Polysemy.Types
-import qualified Data.Text                                 as Text
+import qualified Data.Text                                  as Text
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.Amazonka.LocalStack
 import           HaskellWorks.Polysemy.Error
 import           HaskellWorks.Polysemy.Hedgehog
 import           HaskellWorks.Polysemy.System.Environment
 import           HaskellWorks.Prelude
-import           HaskellWorks.TestContainers.LocalStack    (Container)
+import           HaskellWorks.TestContainers.LocalStack     (Container)
 import           Lens.Micro
 import           Polysemy
 import           Polysemy.Error
 import           Polysemy.Reader
+import           Test.Data.RdsData.Migration.Polysemy.Types
 
 data RdsDataError where
   EnvironmentVariableMissing

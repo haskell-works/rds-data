@@ -1,19 +1,19 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators     #-}
 
-module Data.RdsData.Migration.Polysemy.Workspace
+module Test.Data.RdsData.Migration.Polysemy.Workspace
   ( databaseName,
     localWorkspace,
   ) where
 
-import qualified Data.Text as Text
+import qualified Data.Text                      as Text
 
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Hedgehog
 import           HaskellWorks.Polysemy.Prelude
-import           Polysemy ()
+import           Polysemy                       ()
 
 databaseName :: Text
 databaseName = "rds_data_migration"
@@ -37,5 +37,5 @@ localWorkspace f =
 
     f & moduleWorkspace (Text.unpack databaseName)
       & runReader (ProjectRoot cabalProjectDir)
-      & runReader (PackagePath "rds-data-migration")
+      & runReader (PackagePath "rds-data")
       & runResource

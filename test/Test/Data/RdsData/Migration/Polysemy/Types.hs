@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Data.RdsData.Migration.Polysemy.Types
+module Test.Data.RdsData.Migration.Polysemy.Types
   ( RdsClusterDetails(..),
   ) where
 

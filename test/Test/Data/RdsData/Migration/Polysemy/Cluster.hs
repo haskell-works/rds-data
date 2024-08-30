@@ -8,33 +8,33 @@
 {- HLINT ignore "Redundant pure" -}
 {- HLINT ignore "Use let" -}
 
-module Data.RdsData.Migration.Polysemy.Cluster
+module Test.Data.RdsData.Migration.Polysemy.Cluster
   ( RdsClusterDetails(..),
     createRdsDbCluster,
   ) where
 
-import qualified Amazonka                                  as AWS
-import qualified Amazonka.RDS                              as AWS
-import qualified Amazonka.SecretsManager                   as AWS
-import           Data.Aeson                                ((.=))
-import qualified Data.Aeson                                as J
-import qualified Data.ByteString.Base64                    as B64
-import qualified Data.ByteString.Lazy                      as LBS
+import qualified Amazonka                                       as AWS
+import qualified Amazonka.RDS                                   as AWS
+import qualified Amazonka.SecretsManager                        as AWS
+import           Data.Aeson                                     ((.=))
+import qualified Data.Aeson                                     as J
+import qualified Data.ByteString.Base64                         as B64
+import qualified Data.ByteString.Lazy                           as LBS
 import           Data.Function
 import           Data.Generics.Product.Any
-import           Data.RdsData.Migration.Polysemy.Types     (RdsClusterDetails (RdsClusterDetails))
-import           Data.RdsData.Migration.Polysemy.Workspace
-import qualified Data.Text.Encoding                        as T
-import qualified Data.UUID                                 as UUID
-import qualified Data.UUID.V4                              as UUID
+import qualified Data.Text.Encoding                             as T
+import qualified Data.UUID                                      as UUID
+import qualified Data.UUID.V4                                   as UUID
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
-import           HaskellWorks.Polysemy.Amazonka.LocalStack (getLocalStackEndpoint,
-                                                            inspectContainer)
+import           HaskellWorks.Polysemy.Amazonka.LocalStack      (getLocalStackEndpoint,
+                                                                 inspectContainer)
 import           HaskellWorks.Polysemy.Hedgehog
 import           HaskellWorks.Prelude
 import           HaskellWorks.TestContainers.LocalStack
 import           Lens.Micro
+import           Test.Data.RdsData.Migration.Polysemy.Types     (RdsClusterDetails (RdsClusterDetails))
+import           Test.Data.RdsData.Migration.Polysemy.Workspace
 
 createRdsDbCluster :: ()
   => HasCallStack
