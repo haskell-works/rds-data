@@ -37,8 +37,8 @@ migrateDown :: ()
   => Member Resource r
   => FilePath
   -> Sem r ()
-migrateDown _migrationFp = do
-  value :: Migration <- readYamlFile "db/migration.yaml"
+migrateDown migrationFp = do
+  value :: Migration <- readYamlFile migrationFp
 
   let statements = value ^.. the @"plan" . to reverse . each . the @"down" . each
 
@@ -62,8 +62,8 @@ migrateUp :: ()
   => Member Resource r
   => FilePath
   -> Sem r ()
-migrateUp _migrationFp = do
-  value :: Migration <- readYamlFile "db/migration.yaml"
+migrateUp migrationFp = do
+  value :: Migration <- readYamlFile migrationFp
 
   let statements = value ^.. the @"plan" . each . the @"up" . each
 
