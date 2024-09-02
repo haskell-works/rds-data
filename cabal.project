@@ -1,0 +1,10 @@
+packages: .
+
+package amazonka-rds-data
+  ghc-options: -XDuplicateRecordFields
+
+package amazonka-sso
+  ghc-options: -XDuplicateRecordFields
+
+package amazonka-sts
+  ghc-options: -XDuplicateRecordFields

@@ -1,0 +1,82 @@
+{
+    "httpStatus": 0,
+    "records": [
+        [
+            {
+                "longValue": 1234567890
+            },
+            {
+                "longValue": 1
+            },
+            {
+                "booleanValue": true
+            },
+            {
+                "blobValue": "UldwUlBRPT0="
+            },
+            {
+                "stringValue": "A"
+            },
+            {
+                "stringValue": "AB"
+            },
+            {
+                "stringValue": "C"
+            },
+            {
+                "stringValue": "CD"
+            },
+            {
+                "stringValue": "2024-02-04"
+            },
+            {
+                "doubleValue": 3.14159265359
+            },
+            {
+                "longValue": 42
+            },
+            {
+                "stringValue": "{\"key\":\"value\"}"
+            },
+            {
+                "stringValue": "{\"key\":\"value\"}"
+            },
+            {
+                "stringValue": "1234.56"
+            },
+            {
+                "stringValue": "12.34"
+            },
+            {
+                "doubleValue": 3.14
+            },
+            {
+                "longValue": 12345
+            },
+            {
+                "longValue": 1
+            },
+            {
+                "longValue": 1
+            },
+            {
+                "stringValue": "Some text"
+            },
+            {
+                "stringValue": "12:34:56"
+            },
+            {
+                "stringValue": "12:34:56.78"
+            },
+            {
+                "stringValue": "2024-02-04 12:34:56"
+            },
+            {
+                "stringValue": "2024-02-04 12:34:56"
+            },
+            {
+                "stringValue": "550e8400-e29b-41d4-a716-446655440000"
+            }
+        ]
+    ]
+}

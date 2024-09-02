@@ -1,0 +1,67 @@
+name: Binaries
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ghc: ["9.6.6"]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v2
+        id: setup-haskell
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 3.12.1.0
+
+      - name: Configure project
+        run: |
+          cabal configure --enable-tests --enable-benchmarks
+          cabal build all --dry-run
+
+      - name: Record dependencies
+        run: |
+          cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[].id' | sort | uniq > dependencies.txt
+          date +"%Y-%m-%d" > date.txt
+  
+      - name: Cache cabal store
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: |
+            cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}-${{ hashFiles('date.txt') }}
+          restore-keys: |
+            cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}-${{ hashFiles('date.txt') }}
+            cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
+            cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}
+
+      - name: Build
+        run: cabal build all
+
+      - name: Cache Cabal store
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: |
+            cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}-${{ hashFiles('date.txt') }}
+    
+      - name: Test
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        run: |
+          cabal test all --enable-tests --enable-benchmarks
