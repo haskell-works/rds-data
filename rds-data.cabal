@@ -62,11 +62,9 @@ common transformers                             { build-depends: transformers   
 common ulid                                     { build-depends: ulid                                     >= 0.3.2.0    && < 0.4    }
 common uuid                                     { build-depends: uuid                                     >= 1.3.15     && < 1.4    }
 
+common rds-data-codecs                          { build-depends: rds-data:codecs                          }
 common rds-data-polysemy                        { build-depends: rds-data:polysemy                        }
 common rds-data-testlib                         { build-depends: rds-data:testlib                         }
-
-common rds-data
-  build-depends:        rds-data
 
 common project-config
   default-language:     Haskell2010
@@ -82,7 +80,7 @@ common project-config
                         -Wredundant-constraints
                         -Wunused-imports
 
-library
+library codecs
   import:               base, project-config
                       , aeson
                       , amazonka-core
@@ -99,6 +97,7 @@ library
                       , transformers
                       , ulid
                       , uuid
+  visibility:           public
   exposed-modules:      Data.RdsData
                         Data.RdsData.Aws
                         Data.RdsData.Decode.Array
@@ -139,14 +138,13 @@ library polysemy
                       , polysemy
                       , polysemy-log
                       , polysemy-plugin
-                      , rds-data
+                      , rds-data-codecs
                       , text
                       , time
                       , transformers
                       , ulid
                       , uuid
   visibility:           public
-  build-depends:        rds-data
   exposed-modules:      Data.RdsData.Polysemy
                         Data.RdsData.Polysemy.Core
                         Data.RdsData.Polysemy.Error
@@ -175,7 +173,7 @@ library testlib
                       , polysemy
                       , polysemy-log
                       , polysemy-plugin
-                      , rds-data
+                      , rds-data-codecs
                       , rds-data-polysemy
                       , text
                       , time
@@ -183,7 +181,6 @@ library testlib
                       , ulid
                       , uuid
   visibility:           public
-  build-depends:        rds-data
   exposed-modules:      Data.RdsData.Polysemy.Test.Cluster
                         Data.RdsData.Polysemy.Test.Env
                         Data.RdsData.Polysemy.Test.Workspace
@@ -210,7 +207,7 @@ executable rds-data
                       , polysemy-plugin
                       , polysemy-time
                       , resourcet
-                      , rds-data
+                      , rds-data-codecs
                       , rds-data-polysemy
                       , rds-data-testlib
                       , stm
@@ -237,7 +234,6 @@ executable rds-data
                         App.Show
   hs-source-dirs:       app
   ghc-options:          -threaded "-with-rtsopts=-I0 -A16m -N2 --disable-delayed-os-memory-return"
-  build-depends:        rds-data
 
 test-suite rds-data-test
   import:               base, project-config
@@ -249,7 +245,7 @@ test-suite rds-data-test
                       , hedgehog
                       , hedgehog-extras
                       , microlens
-                      , rds-data
+                      , rds-data-codecs
                       , tasty
                       , tasty-hedgehog
                       , text
@@ -286,7 +282,8 @@ test-suite rds-data-integration
                       , polysemy
                       , polysemy-log
                       , polysemy-plugin
-                      , rds-data
+                      , rds-data-codecs
+                      , rds-data-polysemy
                       , rds-data-testlib
                       , tasty
                       , tasty-discover
@@ -298,8 +295,6 @@ test-suite rds-data-integration
                       , uuid
   type:                 exitcode-stdio-1.0
   main-is:              Spec.hs
-  build-depends:        rds-data,
-                        rds-data:polysemy,
   other-modules:        Test.Data.RdsData.Migration.ConnectionSpec
                         Test.Data.RdsData.TestTypes
   ghc-options:          -fplugin=Polysemy.Plugin
