@@ -1,0 +1,102 @@
+[
+    {
+        "contents": 1234567890,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": 1,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": true,
+        "tag": "ValueOfBool"
+    },
+    {
+        "contents": "UldwUlBRPT0=",
+        "tag": "ValueOfBase64"
+    },
+    {
+        "contents": "A",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "AB",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "C",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "CD",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "2024-02-04",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": 3.14159265359,
+        "tag": "ValueOfDouble"
+    },
+    {
+        "contents": 42,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": "{\"key\":\"value\"}",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "{\"key\":\"value\"}",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "1234.56",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "12.34",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": 3.14,
+        "tag": "ValueOfDouble"
+    },
+    {
+        "contents": 12345,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": 1,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": 1,
+        "tag": "ValueOfInteger"
+    },
+    {
+        "contents": "Some text",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "12:34:56",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "12:34:56.78",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "2024-02-04 12:34:56",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "2024-02-04 12:34:56",
+        "tag": "ValueOfText"
+    },
+    {
+        "contents": "550e8400-e29b-41d4-a716-446655440000",
+        "tag": "ValueOfText"
+    }
+]
