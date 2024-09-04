@@ -111,7 +111,7 @@ runLocalStackCmd _ = do
       STM.atomically $ STM.writeTVar tvRunning True
 
       void $ runLocalTestEnv (pure container) do
-        rdsClusterDetails <- createRdsDbCluster (pure container)
+        rdsClusterDetails <- createRdsDbCluster "rds_data_migration" (pure container)
 
         runReaderResourceAndSecretArnsFromResponses rdsClusterDetails do
           lsEp <- getLocalStackEndpoint container

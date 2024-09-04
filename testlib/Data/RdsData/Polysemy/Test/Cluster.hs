@@ -23,7 +23,6 @@ import qualified Data.ByteString.Lazy                      as LBS
 import           Data.Function
 import           Data.Generics.Product.Any
 import           Data.RdsData.Migration.Types              (RdsClusterDetails (RdsClusterDetails))
-import           Data.RdsData.Polysemy.Test.Workspace
 import qualified Data.Text.Encoding                        as T
 import qualified Data.UUID                                 as UUID
 import qualified Data.UUID.V4                              as UUID
@@ -42,9 +41,10 @@ createRdsDbCluster :: ()
   => Member (Reader AWS.Env) r
   => Member Hedgehog r
   => Member Resource r
-  => IO Container
+  => Text
+  -> IO Container
   -> Sem r RdsClusterDetails
-createRdsDbCluster getContainer = withFrozenCallStack do
+createRdsDbCluster databaseName getContainer = withFrozenCallStack do
   container <- embed getContainer
   jotShowM_ $ getLocalStackEndpoint container
   jotYamlM_ $ inspectContainer container

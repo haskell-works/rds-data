@@ -4,26 +4,23 @@
 {-# LANGUAGE TypeOperators     #-}
 
 module Data.RdsData.Polysemy.Test.Workspace
-  ( databaseName,
-    localWorkspace,
+  ( localWorkspace,
   ) where
 
-import qualified Data.Text                      as Text
+import qualified Data.Text                      as T
 
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Hedgehog
 import           HaskellWorks.Polysemy.Prelude
 import           Polysemy                       ()
 
-databaseName :: Text
-databaseName = "rds_data_migration"
-
 localWorkspace :: ()
   => HasCallStack
   => Member (Embed IO) r
   => Member Hedgehog r
   => Member Log r
-  => Sem
+  => Text
+  -> Sem
         ( Reader Workspace
         : Reader ProjectRoot
         : Reader PackagePath
@@ -31,11 +28,11 @@ localWorkspace :: ()
         : r)
         ()
   -> Sem r ()
-localWorkspace f =
+localWorkspace prefix f =
   withFrozenCallStack $ do
     cabalProjectDir <- findCabalProjectDir "."
 
-    f & moduleWorkspace (Text.unpack databaseName)
+    f & moduleWorkspace (T.unpack prefix)
       & runReader (ProjectRoot cabalProjectDir)
       & runReader (PackagePath "rds-data")
       & runResource

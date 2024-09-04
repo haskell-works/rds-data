@@ -37,16 +37,15 @@ import qualified TestContainers.Tasty                   as TC
 -- cabal test rds-data-test --test-options "--pattern \"/RDS integration test/\""
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
-  TC.withContainers setupContainers $ \getContainer ->
-    H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace $ runLocalTestEnv getContainer $ do
-      rdsClusterDetails <- createRdsDbCluster getContainer
+  TC.withContainers (setupContainers' "localstack/localstack-pro:3.1.0") $ \getContainer ->
+    H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
+      rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
       runReaderResourceAndSecretArnsFromResponses rdsClusterDetails $ do
-        id $ do
-          initialiseDb
-            & trapFail @RdsDataError
-            & trapFail @AWS.Error
-            & jotShowDataLog @AwsLogEntry
+        initialiseDb
+          & trapFail @RdsDataError
+          & trapFail @AWS.Error
+          & jotShowDataLog @AwsLogEntry
 
         migrateUp "db/migration.yaml"
           & trapFail @AWS.Error
@@ -85,7 +84,7 @@ tasty_rds_integration_test =
               [ "SELECT table_name"
               , "  FROM information_schema.tables"
               , "  WHERE table_schema = 'public'"
-              , "    AND table_type = 'BASE TABLE';"
+              , "    AND table_type = 'BASE TABLE'"
               ]
           )
           & trapFail @AWS.Error
