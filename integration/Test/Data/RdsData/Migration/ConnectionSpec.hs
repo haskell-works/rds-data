@@ -38,8 +38,8 @@ import qualified TestContainers.Tasty                   as TC
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
   TC.withContainers setupContainers $ \getContainer ->
-    H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace $ runLocalTestEnv getContainer $ do
-      rdsClusterDetails <- createRdsDbCluster getContainer
+    H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
+      rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
       runReaderResourceAndSecretArnsFromResponses rdsClusterDetails $ do
         id $ do
