@@ -37,7 +37,7 @@ import qualified TestContainers.Tasty                   as TC
 -- cabal test rds-data-test --test-options "--pattern \"/RDS integration test/\""
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
-  TC.withContainers (setupContainers' "localstack/localstack-pro:3.1.0") $ \getContainer ->
+  TC.withContainers (setupContainers' "localstack/localstack-pro:latest") $ \getContainer ->
     H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
       rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
