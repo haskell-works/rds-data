@@ -41,7 +41,14 @@ tasty_rds_integration_test =
     H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
       rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
+      dbClusterArn <- rdsClusterDetails ^. the @"createDbClusterResponse" . the @"dbCluster" . _Just . the @"dbClusterArn"
+        & nothingFail
+
       runReaderResourceAndSecretArnsFromResponses rdsClusterDetails $ do
+        waitUntilRdsDbClusterAvailable dbClusterArn
+          & trapFail @AWS.Error
+          & jotShowDataLog @AwsLogEntry
+
         initialiseDb
           & trapFail @RdsDataError
           & trapFail @AWS.Error

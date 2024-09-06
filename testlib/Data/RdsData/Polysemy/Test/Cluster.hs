@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE NumericUnderscores  #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
@@ -11,6 +12,7 @@
 module Data.RdsData.Polysemy.Test.Cluster
   ( RdsClusterDetails(..),
     createRdsDbCluster,
+    waitUntilRdsDbClusterAvailable,
   ) where
 
 import qualified Amazonka                                  as AWS
@@ -26,12 +28,14 @@ import           Data.RdsData.Migration.Types              (RdsClusterDetails (R
 import qualified Data.Text.Encoding                        as T
 import qualified Data.UUID                                 as UUID
 import qualified Data.UUID.V4                              as UUID
+import           HaskellWorks.Control.Monad
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.Amazonka.LocalStack (getLocalStackEndpoint,
                                                             inspectContainer)
+import           HaskellWorks.Polysemy.Control.Concurrent
 import           HaskellWorks.Polysemy.Hedgehog
-import           HaskellWorks.Prelude
+import           HaskellWorks.Polysemy.Prelude
 import           HaskellWorks.TestContainers.LocalStack
 import           Lens.Micro
 
@@ -108,3 +112,25 @@ createRdsDbCluster databaseName getContainer = withFrozenCallStack do
         & trapFail
 
   pure (RdsClusterDetails createDbClusterResponse createSecetResp)
+
+waitUntilRdsDbClusterAvailable :: ()
+  => HasCallStack
+  => Member (Embed IO) r
+  => Member (Error AWS.Error) r
+  => Member (Reader AWS.Env) r
+  => Member (DataLog AwsLogEntry) r
+  => Member Resource r
+  => Text
+  -> Sem r ()
+waitUntilRdsDbClusterAvailable dbClusterArn =
+  withFrozenCallStack do
+    repeatNWhileM_ 24 $ \_ -> do
+      result <- sendAws $
+        AWS.newDescribeDBClusters
+          & the @"dbClusterIdentifier" .~ Just dbClusterArn
+
+      let mStatus = result ^? the @"dbClusters" . _Just . each . the @"status" . _Just
+
+      if mStatus == Just "available"
+        then pure False
+        else threadDelay 1_000_000 >> pure True
