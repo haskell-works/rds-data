@@ -12,25 +12,17 @@ module App.Cli.Run.Down
   ( runDownCmd
   ) where
 
-import           Control.Monad.IO.Class
 import           Data.Generics.Product.Any
-import           Data.Maybe
-import           Data.RdsData.Migration.Types    (MigrationRow (..))
-import           Data.RdsData.Types
 import           Lens.Micro
 
 import qualified Amazonka                        as AWS
 import qualified App.Cli.Types                   as CLI
 import qualified App.Console                     as T
-import qualified Data.Aeson                      as J
 import           Data.RdsData.Aws
-import qualified Data.RdsData.Decode.Row         as DEC
 import           Data.RdsData.Polysemy.Core
 import           Data.RdsData.Polysemy.Error
 import           Data.RdsData.Polysemy.Migration
 import qualified Data.Text                       as T
-import qualified Data.Text.Lazy.Encoding         as LT
-import qualified Data.Text.Lazy.IO               as LT
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.File
@@ -38,7 +30,6 @@ import           HaskellWorks.Polysemy.Log
 import           HaskellWorks.Prelude
 import           Polysemy.Log
 import           Polysemy.Time.Interpreter.Ghc
-import qualified System.IO                       as IO
 
 newtype AppError
   = AppError Text
@@ -47,8 +38,7 @@ newtype AppError
 runApp :: ()
   => CLI.DownCmd
   -> Sem
-      [ Reader AwsResourceArn
-      , Reader AwsSecretArn
+      [ Reader StatementContext
       , Reader AWS.Env
       , Error AppError
       , DataLog AwsLogEntry
@@ -61,8 +51,7 @@ runApp :: ()
       ] ()
   -> IO ()
 runApp cmd f = f
-  & runReader (AwsResourceArn $ cmd ^. the @"resourceArn")
-  & runReader (AwsSecretArn $ cmd ^. the @"secretArn")
+  & runReader (cmd ^. the @"statementContext")
   & runReaderAwsEnvDiscover
   & trap @AppError reportFatal
   & interpretDataLogAwsLogEntryToLog
@@ -93,32 +82,3 @@ runDownCmd cmd = runApp cmd do
     & trap @JsonDecodeError (throw . AppError . T.pack . show)
     & trap @RdsDataError (throw . AppError . T.pack . show)
     & trap @YamlDecodeError (throw . AppError . T.pack . show)
-
-  id do
-    res <- executeStatement
-      ( mconcat
-        [ "SELECT"
-        , "  uuid,"
-        , "  created_at,"
-        , "  deployed_by"
-        , "FROM migration"
-        ]
-      )
-      & trap @AWS.Error (throw . AppError . T.pack . show)
-      & trap @RdsDataError (throw . AppError . T.pack . show)
-
-    liftIO . LT.putStrLn $ LT.decodeUtf8 $ J.encode res
-
-    decodeMigrationRow <- pure $ id @(DEC.DecodeRow MigrationRow) $
-      MigrationRow
-        <$> DEC.ulid
-        <*> DEC.utcTime
-        <*> DEC.text
-
-    records <- pure $ id @[[Value]] $ fromMaybe [] $ mapM (mapM fromField) =<< res ^. the @"records"
-
-    row <- pure $ DEC.decodeRows decodeMigrationRow records
-
-    liftIO $ IO.print row
-
-  pure ()

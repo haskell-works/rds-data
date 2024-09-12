@@ -74,8 +74,8 @@ runExampleCmd cmd = do
   let theAwsLogLevel   = cmd ^. the @"mAwsLogLevel"
   let theMHostEndpoint = cmd ^. the @"mHostEndpoint"
   let theRegion        = cmd ^. the @"region"
-  let theResourceArn   = cmd ^. the @"resourceArn"
-  let theSecretArn     = cmd ^. the @"secretArn"
+  let theResourceArn   = cmd ^. the @"statementContext" . the @"resourceArn" . the @1
+  let theSecretArn     = cmd ^. the @"statementContext" . the @"secretArn" . the @1
 
   envAws <-
     liftIO (IO.unsafeInterleaveIO (mkEnv theRegion (awsLogger theAwsLogLevel)))

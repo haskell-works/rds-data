@@ -36,8 +36,7 @@ newtype AppError
 runApp :: ()
   => CLI.UpCmd
   -> Sem
-      [ Reader AwsResourceArn
-      , Reader AwsSecretArn
+      [ Reader StatementContext
       , Reader AWS.Env
       , Error AppError
       , DataLog AwsLogEntry
@@ -50,8 +49,7 @@ runApp :: ()
       ] ()
   -> IO ()
 runApp cmd f = f
-  & runReader (AwsResourceArn $ cmd ^. the @"resourceArn")
-  & runReader (AwsSecretArn $ cmd ^. the @"secretArn")
+  & runReader (cmd ^. the @"statementContext")
   & runReaderAwsEnvDiscover
   & trap @AppError reportFatal
   & interpretDataLogAwsLogEntryToLog

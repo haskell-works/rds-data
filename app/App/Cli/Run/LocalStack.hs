@@ -26,6 +26,7 @@ import qualified Control.Monad.Trans.Resource                      as IO
 import qualified Control.Monad.Trans.Resource.Internal             as IO
 import           Data.Acquire                                      (ReleaseType (ReleaseNormal))
 import           Data.Generics.Product.Any
+import           Data.RdsData.Aws
 import           Data.RdsData.Polysemy.Test.Cluster
 import           Data.RdsData.Polysemy.Test.Env
 import           GHC.IORef                                         (IORef)
@@ -113,15 +114,14 @@ runLocalStackCmd _ = do
       void $ runLocalTestEnv (pure container) do
         rdsClusterDetails <- createRdsDbCluster "rds_data_migration" (pure container)
 
-        runReaderResourceAndSecretArnsFromResponses rdsClusterDetails do
+        runReaderStatementContextFromResponses rdsClusterDetails do
           lsEp <- getLocalStackEndpoint container
           jotShow_ lsEp -- Localstack endpoint
           let port = lsEp ^. the @"port"
           let exampleCmd = "awslocal --endpoint-url=http://localhost:" <> show port <> " s3 ls"
           -- Example awslocal command:
           jot_ exampleCmd
-          jotShowM_ $ ask @AwsResourceArn
-          jotShowM_ $ ask @AwsSecretArn
+          jotShowM_ $ ask @StatementContext
           pure ()
 
       failure -- Not a failure

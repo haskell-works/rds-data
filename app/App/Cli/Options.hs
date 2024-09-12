@@ -10,6 +10,7 @@ import           Data.ByteString     (ByteString)
 
 import qualified Amazonka.Data       as AWS
 import qualified App.Cli.Types       as CLI
+import           Data.RdsData.Aws
 import qualified Data.Text           as T
 import qualified Options.Applicative as OA
 
@@ -35,9 +36,9 @@ pCmds =
         $ OA.progDesc "Launch a local-stack RDS cluster."
     ]
 
-pUpCmd :: OA.Parser CLI.UpCmd
-pUpCmd =
-  CLI.UpCmd
+pStatementContext :: OA.Parser StatementContext
+pStatementContext =
+  StatementContext
     <$> do  OA.strOption $ mconcat
               [ OA.long "resource-arn"
               , OA.help "Resource ARN"
@@ -48,6 +49,17 @@ pUpCmd =
               , OA.help "Secret ARN"
               , OA.metavar "ARN"
               ]
+    <*> do  optional
+              ( OA.strOption $ mconcat
+                [ OA.long "database"
+                , OA.help "Database"
+                , OA.metavar "DATABASE"
+                ]
+              )
+pUpCmd :: OA.Parser CLI.UpCmd
+pUpCmd =
+  CLI.UpCmd
+    <$> pStatementContext
     <*> do  OA.strOption $ mconcat
               [ OA.long "migration-file"
               , OA.help "Migration File"
@@ -57,16 +69,7 @@ pUpCmd =
 pDownCmd :: OA.Parser CLI.DownCmd
 pDownCmd =
   CLI.DownCmd
-    <$> do  OA.strOption $ mconcat
-              [ OA.long "resource-arn"
-              , OA.help "Resource ARN"
-              , OA.metavar "ARN"
-              ]
-    <*> do  OA.strOption $ mconcat
-              [ OA.long "secret-arn"
-              , OA.help "Secret ARN"
-              , OA.metavar "ARN"
-              ]
+    <$> pStatementContext
     <*> do  OA.strOption $ mconcat
               [ OA.long "migration-file"
               , OA.help "Migration File"

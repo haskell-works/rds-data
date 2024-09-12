@@ -17,7 +17,7 @@ module Data.RdsData.Polysemy.Test.Env
     runLocalTestEnv,
     runTestEnv,
     runReaderFromEnvOrFail,
-    runReaderResourceAndSecretArnsFromResponses,
+    runReaderStatementContextFromResponses,
   ) where
 
 import qualified Amazonka                                  as AWS
@@ -81,17 +81,23 @@ runReaderFromEnvOrFail f envVar action = do
 
   runReader (f env) action
 
-runReaderResourceAndSecretArnsFromResponses :: ()
+runReaderStatementContextFromResponses :: ()
   => Member Hedgehog r
   => RdsClusterDetails
-  -> Sem (Reader AwsResourceArn : Reader AwsSecretArn : r) a
+  -> Sem (Reader StatementContext : r) a
   -> Sem r a
-runReaderResourceAndSecretArnsFromResponses details f = do
+runReaderStatementContextFromResponses details f = do
   resourceArn <- (details ^. the @"createDbClusterResponse" . the @"dbCluster" . _Just . the @"dbClusterArn")
     & nothingFail
 
   secretArn <- (details ^. the @"createSecretResponse" ^. the @"arn")
     & nothingFail
 
-  f & runReader (AwsResourceArn resourceArn)
-    & runReader (AwsSecretArn secretArn)
+  mDatabase <- pure $ (details ^? the @"createDbClusterResponse" . the @"dbCluster" . _Just . the @"databaseName" . _Just)
+    <&> Database
+
+  statementContext <- pure $ newStatementContext (AwsResourceArn resourceArn) (AwsSecretArn secretArn)
+    & the @"database" .~ mDatabase
+
+
+  f & runReader statementContext

@@ -26,34 +26,37 @@ import           HaskellWorks.Prelude
 import           Lens.Micro
 
 newExecuteStatement :: ()
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Text
   -> Sem r AWS.ExecuteStatement
 newExecuteStatement sql = do
-  AwsResourceArn theResourceArn <- ask
-  AwsSecretArn theSecretArn <- ask
+  context <- ask @StatementContext
+
+  let AwsResourceArn theResourceArn = context ^. the @"resourceArn"
+  let AwsSecretArn theSecretArn = context ^. the @"secretArn"
 
   pure $ AWS.newExecuteStatement theResourceArn theSecretArn sql
+    & the @"database" .~ (context ^? the @"database" . _Just . the @1)
 
 newBatchExecuteStatement :: ()
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Text
   -> Sem r AWS.BatchExecuteStatement
 newBatchExecuteStatement sql = do
-  AwsResourceArn theResourceArn <- ask
-  AwsSecretArn theSecretArn <- ask
+  context <- ask @StatementContext
+
+  let AwsResourceArn theResourceArn = context ^. the @"resourceArn"
+  let AwsSecretArn theSecretArn = context ^. the @"secretArn"
 
   pure $ AWS.newBatchExecuteStatement theResourceArn theSecretArn sql
+    & the @"database" .~ (context ^? the @"database" . _Just . the @1)
 
 executeStatement :: ()
   => Member (DataLog AwsLogEntry) r
   => Member (Embed m) r
   => Member (Error AWS.Error) r
   => Member (Error RdsDataError) r
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Member (Reader Env) r
   => Member Log r
   => Member Resource r
@@ -74,8 +77,7 @@ executeStatement_ :: ()
   => Member (Embed m) r
   => Member (Error AWS.Error) r
   => Member (Error RdsDataError) r
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Member (Reader Env) r
   => Member Log r
   => Member Resource r
@@ -89,8 +91,7 @@ initialiseDb :: ()
   => Member (Embed m) r
   => Member (Error AWS.Error) r
   => Member (Error RdsDataError) r
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Member (Reader Env) r
   => Member Log r
   => Member Resource r
@@ -108,7 +109,7 @@ initialiseDb = do
     ]
 
   executeStatement_
-    "CREATE INDEX idx_migration_created_at ON migration (created_at);"
+    "CREATE INDEX IF NOT EXISTS idx_migration_created_at ON migration (created_at);"
 
   executeStatement_
-    "CREATE INDEX idx_migration_deployed_by ON migration (deployed_by);"
+    "CREATE INDEX IF NOT EXISTS idx_migration_deployed_by ON migration (deployed_by);"
