@@ -20,6 +20,7 @@ import           GHC.Generics
 
 import qualified Amazonka           as AWS
 import qualified Amazonka.RDSData   as AWS
+import           Data.RdsData.Aws
 
 data Cmd =
     CmdOfBatchExecuteStatementCmd BatchExecuteStatementCmd
@@ -30,42 +31,37 @@ data Cmd =
   | CmdOfUpCmd UpCmd
 
 data ExecuteStatementCmd = ExecuteStatementCmd
-  { mAwsLogLevel  :: Maybe AWS.LogLevel
-  , region        :: AWS.Region
-  , mHostEndpoint :: Maybe (ByteString, Int, Bool)
-  , resourceArn   :: Text
-  , secretArn     :: Text
-  , sql           :: Text
+  { mAwsLogLevel     :: Maybe AWS.LogLevel
+  , region           :: AWS.Region
+  , mHostEndpoint    :: Maybe (ByteString, Int, Bool)
+  , statementContext :: StatementContext
+  , sql              :: Text
   } deriving Generic
 
 data BatchExecuteStatementCmd = BatchExecuteStatementCmd
-  { mAwsLogLevel  :: Maybe AWS.LogLevel
-  , region        :: AWS.Region
-  , mHostEndpoint :: Maybe (ByteString, Int, Bool)
-  , parameterSets :: Maybe [[AWS.SqlParameter]]
-  , resourceArn   :: Text
-  , secretArn     :: Text
-  , sql           :: Text
+  { mAwsLogLevel     :: Maybe AWS.LogLevel
+  , region           :: AWS.Region
+  , mHostEndpoint    :: Maybe (ByteString, Int, Bool)
+  , parameterSets    :: Maybe [[AWS.SqlParameter]]
+  , statementContext :: StatementContext
+  , sql              :: Text
   } deriving Generic
 
 data ExampleCmd = ExampleCmd
-  { mAwsLogLevel  :: Maybe AWS.LogLevel
-  , region        :: AWS.Region
-  , mHostEndpoint :: Maybe (ByteString, Int, Bool)
-  , resourceArn   :: Text
-  , secretArn     :: Text
+  { mAwsLogLevel     :: Maybe AWS.LogLevel
+  , region           :: AWS.Region
+  , mHostEndpoint    :: Maybe (ByteString, Int, Bool)
+  , statementContext :: StatementContext
   } deriving Generic
 
 data UpCmd = UpCmd
-  { resourceArn :: Text
-  , secretArn   :: Text
-  , migrationFp :: FilePath
+  { statementContext :: StatementContext
+  , migrationFp      :: FilePath
   } deriving Generic
 
 data DownCmd = DownCmd
-  { resourceArn :: Text
-  , secretArn   :: Text
-  , migrationFp :: FilePath
+  { statementContext :: StatementContext
+  , migrationFp      :: FilePath
   } deriving Generic
 
 data LocalStackCmd = LocalStackCmd

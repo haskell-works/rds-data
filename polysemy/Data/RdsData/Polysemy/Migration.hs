@@ -11,11 +11,14 @@ module Data.RdsData.Polysemy.Migration
 
 import qualified Amazonka.Env                   as AWS
 import qualified Amazonka.Types                 as AWS
+import qualified Data.Aeson                     as J
+import qualified Data.ByteString.Lazy           as LBS
 import           Data.Generics.Product.Any
 import           Data.RdsData.Aws
 import           Data.RdsData.Migration.Types   hiding (id)
 import           Data.RdsData.Polysemy.Core
 import           Data.RdsData.Polysemy.Error
+import qualified Data.Text.Encoding             as T
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.File
@@ -31,8 +34,7 @@ migrateDown :: ()
   => Member (Error RdsDataError) r
   => Member (Error YamlDecodeError) r
   => Member (Reader AWS.Env) r
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Member Log r
   => Member Resource r
   => FilePath
@@ -45,7 +47,9 @@ migrateDown migrationFp = do
   forM_ statements $ \statement -> do
     info $ "Executing statement: " <> tshow statement
 
-    executeStatement (statement ^. the @1)
+    response <- executeStatement (statement ^. the @1)
+
+    info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
 
 migrateUp :: ()
   => Member (DataLog AwsLogEntry) r
@@ -56,8 +60,7 @@ migrateUp :: ()
   => Member (Error RdsDataError) r
   => Member (Error YamlDecodeError) r
   => Member (Reader AWS.Env) r
-  => Member (Reader AwsResourceArn) r
-  => Member (Reader AwsSecretArn) r
+  => Member (Reader StatementContext) r
   => Member Log r
   => Member Resource r
   => FilePath
@@ -70,4 +73,6 @@ migrateUp migrationFp = do
   forM_ statements $ \statement -> do
     info $ "Executing statement: " <> tshow statement
 
-    executeStatement (statement ^. the @1)
+    response <- executeStatement (statement ^. the @1)
+
+    info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
