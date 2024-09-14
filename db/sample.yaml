@@ -1,0 +1,62 @@
+description: This file contains the migration steps for the database schema.
+plan:
+  - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
+    description: Create objects table
+    up:
+      - | # sql
+        -- Objects represent the data that is to be stored on-chain. Objects are
+        -- composed of one or more shards. Each shard is a piece of the object's data
+        -- that is stored on-chain. The shards are stored in the Shards table.
+        CREATE TABLE "jky_objects" (
+          "object_ulid" CHAR(26) PRIMARY KEY,         -- Unique identifier for objects
+          "object_data" BYTEA NOT NULL,               -- Binary data representing the object
+          "sha256_hash" CHAR(64) NOT NULL UNIQUE,     -- SHA-256 hash of the object data
+          "stake_key_hash" CHAR(64) NOT NULL,         -- Stake hash owner of the object
+          "object_type" TEXT NOT NULL,                -- Type of the object as a string
+          "tokens_used" INT NOT NULL,                 -- Number of tokens used by the object
+
+          "indexing_txid" CHAR(64),                   -- Transaction ID of the indexing tx
+          "indexing_tx_on_chain" BOOLEAN NOT NULL,    -- Indicates whether the object is on-chain
+
+          "preparation_txid" CHAR(64),                -- Transaction ID of the preparation tx
+          "preparation_tx_submitted_at" TIMESTAMP,    -- Timestamp of the preparation tx submission
+          "preparation_tx_on_chain" BOOLEAN NOT NULL, -- Enough UTxOs to put object on-chain
+
+          -- Constraint to enforce valid ULID
+          CONSTRAINT "valid_ulid_constraint"
+            CHECK ("object_ulid" ~ '^[0-9A-HJKMNP-TV-Z]{26}$'),
+
+          CONSTRAINT "preparation_txid_and_submitted_at_constraint"
+            CHECK (
+              ("preparation_txid" IS     NULL AND "preparation_tx_submitted_at" IS     NULL) OR
+              ("preparation_txid" IS NOT NULL AND "preparation_tx_submitted_at" IS NOT NULL)
+            )
+        )
+
+      - | # sql
+        CREATE INDEX "idx_stake_key_hash" ON "jky_objects" ("stake_key_hash")
+
+      - | # sql
+        CREATE INDEX "idx_sha256_hash" ON "jky_objects" ("sha256_hash")
+
+      - | # sql
+        CREATE INDEX "idx_indexing_txid" ON "jky_objects" ("indexing_txid")
+
+      - | # sql
+        CREATE INDEX "idx_preparation_txid" ON "jky_objects" ("preparation_txid")
+
+    down:
+      - | # sql
+        DROP INDEX "idx_preparation_txid"
+
+      - | # sql
+        DROP INDEX "idx_indexing_txid"
+
+      - | # sql
+        DROP INDEX "idx_sha256_hash"
+
+      - | # sql
+        DROP INDEX "idx_stake_key_hash"
+
+      - | # sql
+        DROP TABLE "jky_objects"

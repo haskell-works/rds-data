@@ -1,0 +1,33 @@
+description: This file contains the migration steps for the database schema.
+plan:
+  - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
+    description: Create objects table
+    up:
+      - | # sql
+        INSERT INTO "jky_objects" (
+            "object_ulid", 
+            "object_data", 
+            "sha256_hash", 
+            "stake_key_hash", 
+            "object_type", 
+            "tokens_used", 
+            "indexing_txid", 
+            "indexing_tx_on_chain", 
+            "preparation_txid", 
+            "preparation_tx_submitted_at", 
+            "preparation_tx_on_chain"
+        ) VALUES (
+            '01F8MECHJJM6F2Q7VJ0HJK9TRA',   -- object_ulid (example ULID)
+            'hello world',                  -- object_data (example binary data)
+            'C1E5AC4290D1FF3E95EF50DF90CFEF832BFF95F43F98CBBFA3EAFDC07C169120', -- sha256_hash (example SHA-256 hash)
+            'A0B1C2D3E4F5G6H7I8J9K0L1M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E00', -- stake_key_hash (example stake key hash)
+            'example_object_type',          -- object_type (example object type)
+            100,                            -- tokens_used (example number of tokens)
+            '3D1F5A93BFCC442D8F344D986D4FAE98D39B8A7A6BB90E20A4BFAB3EC3B66A1A', -- indexing_txid (example txid)
+            TRUE,                           -- indexing_tx_on_chain (true/false)
+            '9A4CF2B1D2F3G4H5I6J7K8L9M0N1O2P3Q4R5S6T7U8V9W0X1Y2Z3A4B5C6D7E8F', -- preparation_txid (example txid)
+            '2024-09-13 10:15:00',          -- preparation_tx_submitted_at (example timestamp)
+            TRUE                            -- preparation_tx_on_chain (true/false)
+        );
+
+    down: []

@@ -1,0 +1,21 @@
+description: This file contains the migration steps for the database schema.
+plan:
+  - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
+    description: Create objects table
+    up:
+      - | # sql
+        SELECT 
+            "object_ulid", 
+            "object_data", 
+            "sha256_hash", 
+            "stake_key_hash", 
+            "object_type", 
+            "tokens_used", 
+            "indexing_txid", 
+            "indexing_tx_on_chain", 
+            "preparation_txid", 
+            "preparation_tx_submitted_at", 
+            "preparation_tx_on_chain"
+        FROM "jky_objects";
+
+    down: []

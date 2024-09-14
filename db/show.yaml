@@ -1,0 +1,11 @@
+description: This file contains the migration steps for the database schema.
+plan:
+  - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
+    description: Create objects table
+    up:
+      - | # sql
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_type = 'BASE TABLE'
+    down: []
