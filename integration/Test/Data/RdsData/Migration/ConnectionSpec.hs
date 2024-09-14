@@ -44,7 +44,7 @@ tasty_rds_integration_test =
       dbClusterArn <- rdsClusterDetails ^. the @"createDbClusterResponse" . the @"dbCluster" . _Just . the @"dbClusterArn"
         & nothingFail
 
-      runReaderStatementContextFromResponses rdsClusterDetails $ do
+      runReaderStatementContextFromClusterDetails rdsClusterDetails $ do
         waitUntilRdsDbClusterAvailable dbClusterArn
           & trapFail @AWS.Error
           & jotShowDataLog @AwsLogEntry
