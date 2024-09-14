@@ -114,7 +114,7 @@ runLocalStackCmd _ = do
       void $ runLocalTestEnv (pure container) do
         rdsClusterDetails <- createRdsDbCluster "rds_data_migration" (pure container)
 
-        runReaderStatementContextFromResponses rdsClusterDetails do
+        runReaderStatementContextFromClusterDetails rdsClusterDetails do
           lsEp <- getLocalStackEndpoint container
           jotShow_ lsEp -- Localstack endpoint
           let port = lsEp ^. the @"port"
