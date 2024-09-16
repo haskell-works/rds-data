@@ -1,8 +1,11 @@
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
+
+{- HLINT ignore "Use let" -}
 
 module Data.RdsData.Polysemy.Migration
   ( migrateDown,
@@ -14,6 +17,7 @@ import qualified Amazonka.Types                 as AWS
 import qualified Data.Aeson                     as J
 import qualified Data.ByteString.Lazy           as LBS
 import           Data.Generics.Product.Any
+import qualified Data.List                      as L
 import           Data.RdsData.Aws
 import           Data.RdsData.Migration.Types   hiding (id)
 import           Data.RdsData.Polysemy.Core
@@ -42,14 +46,38 @@ migrateDown :: ()
 migrateDown migrationFp = do
   value :: Migration <- readYamlFile migrationFp
 
-  let statements = value ^.. the @"plan" . to reverse . each . the @"down" . each
+  let theSteps = value ^.. the @"plan" . to reverse . each . the @"steps" . _Just . to reverse . each
 
-  forM_ statements $ \statement -> do
-    info $ "Executing statement: " <> tshow statement
+  forM_ theSteps $ \case
+      StepOfDown downStep -> do
+        info $ "Executing statement: " <> tshow downStep
 
-    response <- executeStatement (statement ^. the @1)
+        let statement = downStep ^. the @"down" . the @1
 
-    info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+      StepOfUp _ -> pure ()
+      StepOfCreateTable createTableStatement -> do
+        statement <- pure $ mconcat
+          [ "DROP TABLE " <> createTableStatement ^. the @"createTable" . the @"name"
+          ]
+
+        info $ "Executing statement: " <> statement
+
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+      StepOfCreateIndex createIndexStatement -> do
+        statement <- pure $ mconcat
+          [ "DROP INDEX " <> createIndexStatement ^. the @"createIndex" . the @"name"
+          ]
+
+        info $ "Executing statement: " <> statement
+
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
 
 migrateUp :: ()
   => Member (DataLog AwsLogEntry) r
@@ -68,11 +96,47 @@ migrateUp :: ()
 migrateUp migrationFp = do
   value :: Migration <- readYamlFile migrationFp
 
-  let statements = value ^.. the @"plan" . each . the @"up" . each
+  let theSteps = value ^.. the @"plan" . each . the @"steps"  . _Just . each
 
-  forM_ statements $ \statement -> do
-    info $ "Executing statement: " <> tshow statement
+  forM_ theSteps $ \case
+      StepOfUp upStep -> do
+        info $ "Executing statement: " <> tshow upStep
 
-    response <- executeStatement (statement ^. the @1)
+        let statement = upStep ^. the @"up" . the @1
 
-    info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+      StepOfDown _ -> pure ()
+      StepOfCreateTable createTableStatement -> do
+        columnClauses <- pure $
+          createTableStatement ^.. the @"createTable" . the @"columns" . each . to \column ->
+            column ^. the @"name" <> " " <> column ^. the @"type_"
+
+        statement <- pure $ mconcat
+          [ "CREATE TABLE " <> createTableStatement ^. the @"createTable" . the @"name" <> " ("
+          , mconcat $ L.intersperse ", " columnClauses
+          , ");\n"
+          ]
+
+        info $ "Executing create table statement: " <> statement
+
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+      StepOfCreateIndex createIndexStatement -> do
+        columnClauses <- pure $
+          createIndexStatement ^.. the @"createIndex" . the @"columns" . each
+
+        statement <- pure $ mconcat
+          [ "CREATE INDEX " <> createIndexStatement ^. the @"createIndex" . the @"name"
+          , " ON " <> createIndexStatement ^. the @"createIndex" . the @"table" <> " ("
+          , mconcat $ L.intersperse ", " columnClauses
+          , ");\n"
+          ]
+
+        info $ "Executing  create index statement: " <> statement
+
+        response <- executeStatement statement
+
+        info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))

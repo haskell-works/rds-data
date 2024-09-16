@@ -2,49 +2,49 @@ description: This file contains the migration steps for the database schema.
 plan:
   - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
     description: Create Users table
-    up:
-      - | # sql
-        CREATE TABLE users (name VARCHAR(50));
+    steps:
+      - create_table:
+          name: users
+          columns:
+            - name: name
+              type: VARCHAR(50)
 
-      - | # sql
-        CREATE INDEX idx_users_name ON users (name);
-
-    down:
-      - | # sql
-        DROP INDEX idx_users_name;
-
-      - | # sql
-        DROP TABLE users;
+      - create_index:
+          name: idx_users_name
+          table: users
+          columns:
+            - name
 
   - id: 01J6EWQ9NQRBQA3GT3FTCSRPJN
     description: Create Projects table
-    up:
-      - | # sql
-        CREATE TABLE projects (name VARCHAR(50));
+    steps:
+      - up: | # sql
+          CREATE TABLE projects (name VARCHAR(50));
 
-      - | # sql
-        CREATE INDEX idx_projects_name ON projects (name);
+      - down: | # sql
+          DROP TABLE projects;
 
-    down:
-      - | # sql
-        DROP INDEX idx_projects_name;
+      - up: | # sql
+          CREATE INDEX idx_projects_name ON projects (name);
 
-      - | # sql
-        DROP TABLE projects;
+      - down: | # sql
+          DROP INDEX idx_projects_name;
 
   - id: 01J6PQ201YECE9R5XYTVWCRJC1
     description: Populate users table
-    up:
-      - | # sql
-        INSERT INTO users (name) VALUES ('Alice');
+    steps:
+      - up: | # sql
+          INSERT INTO users (name) VALUES ('Alice');
 
-      - | # sql
-        SELECT COUNT(name) FROM users;
+      - up: | # sql
+          SELECT COUNT(name) FROM users;
 
-      - | # sql
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = 'public'
-          AND table_type = 'BASE TABLE';
+      - up: | # sql
+          SELECT table_name
+          FROM information_schema.tables
+          WHERE table_schema = 'public'
+            AND table_type = 'BASE TABLE';
 
-    down: []
+      - up: | # sql
+          SELECT schema_name
+          FROM information_schema.schemata;
