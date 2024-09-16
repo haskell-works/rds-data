@@ -78,6 +78,21 @@ tasty_rds_integration_test =
 
         L.sort upTables === ["migration", "projects", "users"]
 
+        -- upIndexResult <-
+        --   ( executeStatement $ mconcat
+        --       [ "SELECT schemaname, indexname, tablename"
+        --       , "  FROM pg_indexes"
+        --       , "  ORDER BY schemaname, tablename, indexname;"
+        --       ]
+        --   )
+        --   & trapFail @AWS.Error
+        --   & trapFail @RdsDataError
+        --   & jotShowDataLog
+
+        -- let upIndexes = upIndexResult ^.. the @"records" . each . each . each . the @"stringValue" . _Just
+
+        -- L.sort upIndexes === []
+
         migrateDown "db/migration.yaml"
           & trapFail @AWS.Error
           & trapFail @IOException
