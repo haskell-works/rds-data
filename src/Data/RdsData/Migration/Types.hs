@@ -176,6 +176,7 @@ instance FromJSON CreateIndexStep where
 data TableSchema = TableSchema
   { name        :: Text
   , columns     :: [Column]
+  , primaryKey  :: Maybe [Text]
   , constraints :: Maybe [Constraint]
   } deriving (Eq, Generic, Show)
 
