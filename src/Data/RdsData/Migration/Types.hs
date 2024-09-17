@@ -17,6 +17,7 @@ module Data.RdsData.Migration.Types
     CreateTableStep(..),
     TableSchema(..),
     Column(..),
+    Constraint(..),
     ForeignKey(..),
   ) where
 
@@ -26,8 +27,11 @@ import qualified Amazonka.RDS              as AWS
 import qualified Amazonka.SecretsManager   as AWS
 import           Control.Applicative
 import qualified Data.Aeson                as J
+import qualified Data.Aeson.Key            as J
+import qualified Data.Aeson.Types          as J
 import           Data.Bool
 import           Data.Char                 (isAsciiUpper, toLower)
+import           Data.Functor
 import           Data.Generics.Product.Any
 import           Data.Maybe
 import           Data.RdsData.Orphans      ()
@@ -97,18 +101,33 @@ instance ToJSON Step where
   toJSON = \case
     StepOfUp step -> J.toJSON step
     StepOfDown step -> J.toJSON step
-    StepOfCreateTable table -> J.toJSON table
-    StepOfCreateIndex index -> J.toJSON index
+    StepOfCreateTable t -> J.toJSON t
+    StepOfCreateIndex i -> J.toJSON i
 
 instance FromJSON Step where
-  parseJSON v =
-    flip (J.withObject "Step") v $ \_ ->
-      asum
-        [ StepOfUp          <$> J.parseJSON v
-        , StepOfDown        <$> J.parseJSON v
-        , StepOfCreateTable <$> J.parseJSON v
-        , StepOfCreateIndex <$> J.parseJSON v
-        ]
+  parseJSON v = do
+    f <- fieldIn v
+      [ "up"
+      , "down"
+      , "create_table"
+      , "create_index"
+      ]
+
+    case f of
+      "up"           -> StepOfUp          <$> J.parseJSON v
+      "down"         -> StepOfDown        <$> J.parseJSON v
+      "create_table" -> StepOfCreateTable <$> J.parseJSON v
+      "create_index" -> StepOfCreateIndex <$> J.parseJSON v
+      _              -> fail "Invalid Step"
+
+fieldIn :: J.Value -> [Text] -> J.Parser Text
+fieldIn v fs =
+  asum $ fmap (field v) fs
+
+field :: J.Value -> Text -> J.Parser Text
+field v f =
+  flip (J.withObject "Step") v $ \o ->
+    (J..:) @J.Value o (J.fromText f) $> f
 
 newtype UpStep = UpStep
   { up   :: Statement
@@ -155,8 +174,9 @@ instance FromJSON CreateIndexStep where
   parseJSON = J.genericParseJSON snakeCaseOptions
 
 data TableSchema = TableSchema
-  { name    :: Text
-  , columns :: [Column]
+  { name        :: Text
+  , columns     :: [Column]
+  , constraints :: Maybe [Constraint]
   } deriving (Eq, Generic, Show)
 
 instance ToJSON TableSchema where
@@ -168,7 +188,7 @@ instance FromJSON TableSchema where
 data Column = Column
   { name          :: Text
   , type_         :: Text
-  , nullable      :: Bool
+  , required      :: Bool
   , primaryKey    :: Bool
   , unique        :: Bool
   , autoIncrement :: Bool
@@ -176,15 +196,15 @@ data Column = Column
   } deriving (Eq, Generic, Show)
 
 instance ToJSON Column where
-  toJSON column =
+  toJSON v =
     J.object $ catMaybes
-      [ "name"            .=? do column ^. the @"name"          & Just
-      , "type"            .=? do column ^. the @"type_"         & Just
-      , "nullable"        .=? do column ^. the @"nullable"      & bool Nothing (Just True)
-      , "primary_key"     .=? do column ^. the @"primaryKey"    & bool Nothing (Just True)
-      , "unique"          .=? do column ^. the @"unique"        & bool Nothing (Just True)
-      , "auto_increment"  .=? do column ^. the @"autoIncrement" & bool Nothing (Just True)
-      , "references"      .=? do column ^. the @"references"    & Just
+      [ "name"            .=? do v ^. the @"name"           & Just
+      , "type"            .=? do v ^. the @"type_"          & Just
+      , "required"        .=? do v ^. the @"required"       & bool Nothing (Just True)
+      , "primary_key"     .=? do v ^. the @"primaryKey"     & bool Nothing (Just True)
+      , "unique"          .=? do v ^. the @"unique"         & bool Nothing (Just True)
+      , "auto_increment"  .=? do v ^. the @"autoIncrement"  & bool Nothing (Just True)
+      , "references"      .=? do v ^. the @"references"     & Just
       ]
 
 (.=?) :: (J.KeyValue e kv, ToJSON v) => J.Key -> Maybe v -> Maybe kv
@@ -198,7 +218,7 @@ instance FromJSON Column where
     Column
       <$> v .:  "name"
       <*> v .:  "type"
-      <*> v .:? "nullable"        .!= False
+      <*> v .:? "required"        .!= False
       <*> v .:? "primary_key"     .!= False
       <*> v .:? "unique"          .!= False
       <*> v .:? "auto_increment"  .!= False
@@ -216,7 +236,24 @@ instance ToJSON IndexSchema where
 instance FromJSON IndexSchema where
   parseJSON = J.genericParseJSON snakeCaseOptions
 
+data ForeignKey = ForeignKey
+  { table  :: Text
+  , column :: Text
+  } deriving (Eq, Generic, Show)
 
-newtype ForeignKey = ForeignKey Text
-  deriving newtype (Eq, Show, ToJSON, FromJSON)
-  deriving Generic
+instance ToJSON ForeignKey where
+  toJSON = J.genericToJSON snakeCaseOptions
+
+instance FromJSON ForeignKey where
+  parseJSON = J.genericParseJSON snakeCaseOptions
+
+data Constraint = Constraint
+  { name  :: Text
+  , check :: Text
+  } deriving (Eq, Generic, Show)
+
+instance ToJSON Constraint where
+  toJSON = J.genericToJSON snakeCaseOptions
+
+instance FromJSON Constraint where
+  parseJSON = J.genericParseJSON snakeCaseOptions

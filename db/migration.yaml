@@ -48,3 +48,24 @@ plan:
       - up: | # sql
           SELECT schema_name
           FROM information_schema.schemata;
+
+  - id: 01J7ZS10D1FWF2E4WVFMBDYWHH
+    description: Create Complex table
+    steps:
+      - create_table:
+          name: examples
+          columns:
+            - name: ulid
+              type: CHAR(26)
+              primary_key: true
+            - name: example_data
+              type: BYTEA
+              required: true
+            - name: example_hash
+              type: CHAR(64)
+              unique: true
+              remarks: SHA-256 hash of the object data
+          constraints:
+            - name: valid_ulid_constraint
+              check: ulid ~ '^[0-9A-HJKMNP-TV-Z]{26}'
+              remarks: Constraint to enforce valid ULID

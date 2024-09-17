@@ -22,6 +22,7 @@ import           Data.RdsData.Aws
 import           Data.RdsData.Migration.Types   hiding (id)
 import           Data.RdsData.Polysemy.Core
 import           Data.RdsData.Polysemy.Error
+import qualified Data.Text                      as T
 import qualified Data.Text.Encoding             as T
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
@@ -110,12 +111,14 @@ migrateUp migrationFp = do
       StepOfDown _ -> pure ()
       StepOfCreateTable createTableStatement -> do
         columnClauses <- pure $
-          createTableStatement ^.. the @"createTable" . the @"columns" . each . to \column ->
-            column ^. the @"name" <> " " <> column ^. the @"type_"
+          createTableStatement ^.. the @"createTable" . the @"columns" . each . to columnToText
+
+        constraintClauses <- pure $
+          createTableStatement ^.. the @"createTable" . the @"constraints" . _Just . each . to constraintToText
 
         statement <- pure $ mconcat
           [ "CREATE TABLE " <> createTableStatement ^. the @"createTable" . the @"name" <> " ("
-          , mconcat $ L.intersperse ", " columnClauses
+          , mconcat $ L.intersperse ", " (columnClauses <> constraintClauses)
           , ");\n"
           ]
 
@@ -140,3 +143,41 @@ migrateUp migrationFp = do
         response <- executeStatement statement
 
         info $ "Results: " <> T.decodeUtf8 (LBS.toStrict (J.encode (response ^. the @"records")))
+
+columnToText :: Column -> Text
+columnToText c =
+  T.intercalate " " $ concat
+    [ [c ^. the @"name"]
+    , [c ^. the @"type_"]
+    , [ "NOT NULL"
+      | c ^. the @"required"
+      ]
+    , [ "PRIMARY KEY"
+      | c ^. the @"primaryKey"
+      ]
+    , [ "UNIQUE"
+      | c ^. the @"unique"
+      ]
+    , [ "AUTO_INCREMENT"
+      | c ^. the @"autoIncrement"
+      ]
+    , [ [ "REFERENCES"
+        , fk ^. the @"table"
+        , "("
+        , fk ^. the @"column"
+        , ")"
+        ] & T.intercalate " "
+      | Just fk <- [c ^. the @"references"]
+      ]
+    ]
+
+constraintToText :: Constraint -> Text
+constraintToText c =
+  T.intercalate " "
+    [ "CONSTRAINT"
+    , c ^. the @"name"
+    , "CHECK"
+    , "("
+    , c ^. the @"check"
+    , ")"
+    ]
