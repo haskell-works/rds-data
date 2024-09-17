@@ -37,7 +37,7 @@ import qualified TestContainers.Tasty                   as TC
 -- cabal test rds-data-test --test-options "--pattern \"/RDS integration test/\""
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
-  TC.withContainers (setupContainers' "localstack/localstack-pro:latest") $ \getContainer ->
+  TC.withContainers (setupContainers' "localstack/localstack-pro:3.7.2") $ \getContainer ->
     H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
       rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
@@ -76,22 +76,7 @@ tasty_rds_integration_test =
 
         let upTables = upResult ^.. the @"records" . each . each . each . the @"stringValue" . _Just
 
-        L.sort upTables === ["migration", "projects", "users"]
-
-        -- upIndexResult <-
-        --   ( executeStatement $ mconcat
-        --       [ "SELECT schemaname, indexname, tablename"
-        --       , "  FROM pg_indexes"
-        --       , "  ORDER BY schemaname, tablename, indexname;"
-        --       ]
-        --   )
-        --   & trapFail @AWS.Error
-        --   & trapFail @RdsDataError
-        --   & jotShowDataLog
-
-        -- let upIndexes = upIndexResult ^.. the @"records" . each . each . each . the @"stringValue" . _Just
-
-        -- L.sort upIndexes === []
+        L.sort upTables === ["examples", "migration", "projects", "users"]
 
         migrateDown "db/migration.yaml"
           & trapFail @AWS.Error
