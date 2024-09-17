@@ -57,7 +57,6 @@ plan:
           columns:
             - name: ulid
               type: CHAR(26)
-              primary_key: true
             - name: example_data
               type: BYTEA
               required: true
@@ -65,6 +64,9 @@ plan:
               type: CHAR(64)
               unique: true
               remarks: SHA-256 hash of the object data
+          primary_key:
+            - ulid
+            - example_hash
           constraints:
             - name: valid_ulid_constraint
               check: ulid ~ '^[0-9A-HJKMNP-TV-Z]{26}'

@@ -113,12 +113,15 @@ migrateUp migrationFp = do
         columnClauses <- pure $
           createTableStatement ^.. the @"createTable" . the @"columns" . each . to columnToText
 
+        primaryKeyClause <- pure $
+          createTableStatement ^.. the @"createTable" . the @"primaryKey" . _Just . to primaryKeyToText
+
         constraintClauses <- pure $
           createTableStatement ^.. the @"createTable" . the @"constraints" . _Just . each . to constraintToText
 
         statement <- pure $ mconcat
           [ "CREATE TABLE " <> createTableStatement ^. the @"createTable" . the @"name" <> " ("
-          , mconcat $ L.intersperse ", " (columnClauses <> constraintClauses)
+          , mconcat $ L.intersperse ", " (columnClauses <> primaryKeyClause <> constraintClauses)
           , ");\n"
           ]
 
@@ -169,6 +172,15 @@ columnToText c =
         ] & T.intercalate " "
       | Just fk <- [c ^. the @"references"]
       ]
+    ]
+
+primaryKeyToText :: [Text] -> Text
+primaryKeyToText cs =
+  T.intercalate " "
+    [ "PRIMARY KEY"
+    , "("
+    , T.intercalate ", " cs
+    , ")"
     ]
 
 constraintToText :: Constraint -> Text
