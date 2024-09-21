@@ -52,6 +52,7 @@ newBatchExecuteStatement sql = do
     & the @"database" .~ (context ^? the @"database" . _Just . the @1)
 
 executeStatement :: ()
+  => HasCallStack
   => Member (DataLog AwsLogEntry) r
   => Member (Embed m) r
   => Member (Error AWS.Error) r
@@ -63,7 +64,7 @@ executeStatement :: ()
   => MonadIO m
   => Text
   -> Sem r AWS.ExecuteStatementResponse
-executeStatement sql = do
+executeStatement sql = withFrozenCallStack do
   res <- newExecuteStatement sql >>= sendAws
 
   case res ^. the @"httpStatus" of
@@ -73,6 +74,7 @@ executeStatement sql = do
     _   -> throw $ RdsDataError $ "Failed to initialise database: " <> tshow res
 
 executeStatement_ :: ()
+  => HasCallStack
   => Member (DataLog AwsLogEntry) r
   => Member (Embed m) r
   => Member (Error AWS.Error) r
@@ -84,9 +86,11 @@ executeStatement_ :: ()
   => MonadIO m
   => Text
   -> Sem r ()
-executeStatement_ = void . executeStatement
+executeStatement_ f = withFrozenCallStack do
+  void $ executeStatement f
 
 initialiseDb :: ()
+  => HasCallStack
   => Member (DataLog AwsLogEntry) r
   => Member (Embed m) r
   => Member (Error AWS.Error) r
@@ -97,7 +101,7 @@ initialiseDb :: ()
   => Member Resource r
   => MonadIO m
   => Sem r ()
-initialiseDb = do
+initialiseDb = withFrozenCallStack do
   executeStatement_ $ mconcat
     [ "CREATE TABLE IF NOT EXISTS migration ("
     , "  ulid CHAR(26)    NOT NULL PRIMARY KEY,"
