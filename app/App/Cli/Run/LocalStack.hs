@@ -27,6 +27,7 @@ import qualified Control.Monad.Trans.Resource.Internal             as IO
 import           Data.Acquire                                      (ReleaseType (ReleaseNormal))
 import           Data.Generics.Product.Any
 import           Data.RdsData.Aws
+import           Data.RdsData.Default
 import           Data.RdsData.Polysemy.Test.Cluster
 import           Data.RdsData.Polysemy.Test.Env
 import           GHC.IORef                                         (IORef)
@@ -85,7 +86,7 @@ startContainers :: ()
   -> IO (TC.Container, IO.InternalState)
 startContainers tcConfig =
   TC.runTestContainer tcConfig do
-    result <- setupContainers' "localstack/localstack-pro:3.7.2"
+    result <- setupContainers' projectDefaultLocalStack
     releaseMap <- IO.liftResourceT IO.getInternalState
 
     -- N.B. runResourceT runs the finalizers on every resource. We don't want it to! We want to run

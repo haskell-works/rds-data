@@ -103,6 +103,7 @@ library codecs
                         Data.RdsData.Decode.Array
                         Data.RdsData.Decode.Row
                         Data.RdsData.Decode.Value
+                        Data.RdsData.Default
                         Data.RdsData.Encode.Array
                         Data.RdsData.Encode.Param
                         Data.RdsData.Encode.Params
