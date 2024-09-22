@@ -85,7 +85,7 @@ startContainers :: ()
   -> IO (TC.Container, IO.InternalState)
 startContainers tcConfig =
   TC.runTestContainer tcConfig do
-    result <- setupContainers
+    result <- setupContainers' "localstack/localstack-pro:3.7.2"
     releaseMap <- IO.liftResourceT IO.getInternalState
 
     -- N.B. runResourceT runs the finalizers on every resource. We don't want it to! We want to run
