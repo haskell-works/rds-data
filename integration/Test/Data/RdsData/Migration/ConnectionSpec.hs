@@ -18,6 +18,7 @@ import qualified Amazonka.Types                         as AWS
 import           Data.Function
 import           Data.Generics.Product.Any
 import qualified Data.List                              as L
+import           Data.RdsData.Default
 import           Data.RdsData.Polysemy.Core
 import           Data.RdsData.Polysemy.Error
 import           Data.RdsData.Polysemy.Migration
@@ -37,7 +38,7 @@ import qualified TestContainers.Tasty                   as TC
 -- cabal test rds-data-test --test-options "--pattern \"/RDS integration test/\""
 tasty_rds_integration_test :: Tasty.TestTree
 tasty_rds_integration_test =
-  TC.withContainers (setupContainers' "localstack/localstack-pro:3.7.2") $ \getContainer ->
+  TC.withContainers (setupContainers' projectDefaultLocalStack) $ \getContainer ->
     H.testProperty "RDS integration test" $ propertyOnce $ localWorkspace "rds-data" $ runLocalTestEnv getContainer $ do
       rdsClusterDetails <- createRdsDbCluster "rds_data_migration" getContainer
 
