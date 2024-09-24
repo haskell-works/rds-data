@@ -7,4 +7,4 @@ module Data.RdsData.Default
 import           Data.Text
 
 projectDefaultLocalStack :: Text
-projectDefaultLocalStack = "localstack/localstack-pro:3.7.2"
+projectDefaultLocalStack = "localstack/localstack-pro:latest"
