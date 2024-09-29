@@ -26,6 +26,8 @@ module Data.RdsData.Encode.Params
   , int64
   , json
   , lazyBytestring
+  , base64Text
+  , lazyBase64Text
   , lazyText
   , timeOfDay
   , ulid
@@ -38,27 +40,27 @@ module Data.RdsData.Encode.Params
   , word64
   ) where
 
-import Data.ByteString (ByteString)
-import Data.Functor.Contravariant
-import Data.Functor.Contravariant.Divisible
-import Data.Int
-import Data.RdsData.Encode.Array (EncodeArray(..))
-import Data.RdsData.Encode.Param (EncodeParam(..))
-import Data.RdsData.Types.Param
-import Data.Text (Text)
-import Data.Time
-import Data.UUID (UUID)
-import Data.ULID (ULID)
-import Data.Void
-import Data.Word
-import Prelude hiding (maybe, null)
+import           Data.ByteString                      (ByteString)
+import           Data.Functor.Contravariant
+import           Data.Functor.Contravariant.Divisible
+import           Data.Int
+import           Data.RdsData.Encode.Array            (EncodeArray (..))
+import           Data.RdsData.Encode.Param            (EncodeParam (..))
+import           Data.RdsData.Types.Param
+import           Data.Text                            (Text)
+import           Data.Time
+import           Data.ULID                            (ULID)
+import           Data.UUID                            (UUID)
+import           Data.Void
+import           Data.Word
+import           Prelude                              hiding (maybe, null)
 
-import qualified Amazonka.Data.Base64       as AWS
-import qualified Data.Aeson                 as J
-import qualified Data.ByteString.Lazy       as LBS
-import qualified Data.RdsData.Encode.Param  as EP
-import qualified Data.Text.Lazy             as LT
-import qualified Prelude                    as P
+import qualified Amazonka.Data.Base64                 as AWS
+import qualified Data.Aeson                           as J
+import qualified Data.ByteString.Lazy                 as LBS
+import qualified Data.RdsData.Encode.Param            as EP
+import qualified Data.Text.Lazy                       as LT
+import qualified Prelude                              as P
 
 newtype EncodeParams a = EncodeParams
   { encodeParams :: a -> [Param] -> [Param]
@@ -80,7 +82,7 @@ instance Decidable EncodeParams where
   choose f (EncodeParams g) (EncodeParams h) =
     EncodeParams \a ->
       case f a of
-        Left b -> g b
+        Left b  -> g b
         Right c -> h c
   lose f =
     EncodeParams $ absurd . f
@@ -186,6 +188,14 @@ bytestring =
 lazyBytestring :: EncodeParams LBS.ByteString
 lazyBytestring =
   column EP.lazyBytestring
+
+base64Text :: EncodeParams ByteString
+base64Text =
+  column EP.base64Text
+
+lazyBase64Text :: EncodeParams LBS.ByteString
+lazyBase64Text =
+  column EP.lazyBase64Text
 
 timeOfDay :: EncodeParams TimeOfDay
 timeOfDay =

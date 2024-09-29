@@ -87,6 +87,7 @@ library codecs
                       , amazonka-rds
                       , amazonka-rds-data
                       , amazonka-secretsmanager
+                      , base64-bytestring
                       , bytestring
                       , contravariant
                       , generic-lens
