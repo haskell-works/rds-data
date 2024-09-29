@@ -1,6 +1,6 @@
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE BlockArguments    #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveFunctor     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 {- HLINT ignore "Use <&>" -}
@@ -32,6 +32,8 @@ module Data.RdsData.Decode.Value
   , bytestring
   , lazyText
   , lazyBytestring
+  , base64Text
+  , lazyBase64Text
   , string
   , json
   , timeOfDay
@@ -41,28 +43,31 @@ module Data.RdsData.Decode.Value
 
   ) where
 
-import Amazonka.Data.Base64
-import Control.Applicative
-import Data.ByteString (ByteString)
-import Data.Int
-import Data.RdsData.Decode.Array (DecodeArray(..))
-import Data.RdsData.Internal.Aeson
-import Data.RdsData.Types.Value
-import Data.Text (Text)
-import Data.Time
-import Data.UUID (UUID)
-import Data.Word
-import Prelude hiding (maybe, null)
+import           Amazonka.Data.Base64
+import           Control.Applicative
+import           Data.ByteString               (ByteString)
+import           Data.Int
+import           Data.RdsData.Decode.Array     (DecodeArray (..))
+import           Data.RdsData.Internal.Aeson
+import           Data.RdsData.Types.Value
+import           Data.Text                     (Text)
+import           Data.Time
+import           Data.UUID                     (UUID)
+import           Data.Word
+import           Prelude                       hiding (maybe, null)
 
-import qualified Amazonka.Data.ByteString       as AWS
-import qualified Data.Aeson                     as J
-import qualified Data.ByteString.Lazy           as LBS
-import qualified Data.RdsData.Internal.Convert  as CONV
-import qualified Data.Text                      as T
-import qualified Data.Text.Encoding             as T
-import qualified Data.Text.Lazy                 as LT
-import qualified Data.UUID                      as UUID
-import qualified Prelude                        as P
+import qualified Amazonka.Data.ByteString      as AWS
+import qualified Data.Aeson                    as J
+import qualified Data.ByteString.Base64        as B64
+import qualified Data.ByteString.Base64.Lazy   as LB64
+import qualified Data.ByteString.Lazy          as LBS
+import qualified Data.RdsData.Internal.Convert as CONV
+import qualified Data.Text                     as T
+import qualified Data.Text.Encoding            as T
+import qualified Data.Text.Lazy                as LT
+import qualified Data.Text.Lazy.Encoding       as LT
+import qualified Data.UUID                     as UUID
+import qualified Prelude                       as P
 
 newtype DecodeValue a = DecodeValue
   { decodeValue :: Value -> Either Text a
@@ -106,7 +111,7 @@ maybe (DecodeValue f) =
   DecodeValue \v ->
     case v of
       ValueOfNull -> Right Nothing
-      _ -> Just <$> f v  
+      _           -> Just <$> f v
 
 --------------------------------------------------------------------------------
 
@@ -129,7 +134,7 @@ bool =
   DecodeValue \v ->
     case v of
       ValueOfBool b -> Right b
-      _ -> Left $ decodeValueFailedMessage "bool" "Bool" Nothing v
+      _             -> Left $ decodeValueFailedMessage "bool" "Bool" Nothing v
 
 double :: DecodeValue Double
 double =
@@ -147,7 +152,7 @@ text =
   DecodeValue \v ->
     case v of
       ValueOfText s -> Right s
-      _ -> Left $ decodeValueFailedMessage "text" "Text" Nothing v
+      _             -> Left $ decodeValueFailedMessage "text" "Text" Nothing v
 
 integer :: DecodeValue Integer
 integer =
@@ -161,7 +166,7 @@ null =
   DecodeValue \v ->
     case v of
       ValueOfNull -> Right ()
-      _ -> Left $ decodeValueFailedMessage "null" "()" Nothing v
+      _           -> Left $ decodeValueFailedMessage "null" "()" Nothing v
 
 --------------------------------------------------------------------------------
 
@@ -243,6 +248,22 @@ lazyText :: DecodeValue LT.Text
 lazyText =
   LT.fromStrict <$> text
 
+base64Text :: DecodeValue ByteString
+base64Text = do
+  t <- text
+  let b64 = T.encodeUtf8 t
+  case B64.decode b64 of
+    Right a -> pure a
+    Left e  -> decodeValueFailed "base64-text" "Text" (Just (T.pack e))
+
+lazyBase64Text :: DecodeValue LBS.ByteString
+lazyBase64Text = do
+  t <- lazyText
+  let b64 = LT.encodeUtf8 t
+  case LB64.decode b64 of
+    Right a -> pure a
+    Left e  -> decodeValueFailed "base64-text" "Text" (Just (T.pack e))
+
 lazyBytestring :: DecodeValue LBS.ByteString
 lazyBytestring =
   LBS.fromStrict <$> bytestring
@@ -256,7 +277,7 @@ json = do
   t <- text
   case J.eitherDecode (LBS.fromStrict (T.encodeUtf8 t)) of
     Right v -> pure v
-    Left e -> decodeValueFailed "json" "Value" (Just (T.pack e))
+    Left e  -> decodeValueFailed "json" "Value" (Just (T.pack e))
 
 timeOfDay :: DecodeValue TimeOfDay
 timeOfDay = do
@@ -269,19 +290,19 @@ utcTime :: DecodeValue UTCTime
 utcTime = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d %H:%M:%S" (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> decodeValueFailed "utcTime" "UTCTime" Nothing
 
 uuid :: DecodeValue UUID
 uuid = do
   t <- text
   case UUID.fromString (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> decodeValueFailed "uuid" "UUID" Nothing
 
 day :: DecodeValue Day
 day = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> decodeValueFailed "day" "Day" Nothing
