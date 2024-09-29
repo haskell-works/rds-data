@@ -31,6 +31,8 @@ module Data.RdsData.Encode.Param
   , int8
   , json
   , lazyBytestring
+  , base64Text
+  , lazyBase64Text
   , lazyText
   , timeOfDay
   , ulid
@@ -62,9 +64,13 @@ import qualified Amazonka.Bytes                as AWS
 import qualified Amazonka.Data.Base64          as AWS
 import qualified Amazonka.RDSData              as AWS
 import qualified Data.Aeson                    as J
+import qualified Data.ByteString.Base64        as B64
+import qualified Data.ByteString.Base64.Lazy   as LB64
 import qualified Data.ByteString.Lazy          as LBS
 import qualified Data.RdsData.Internal.Convert as CONV
+import qualified Data.Text.Encoding            as T
 import qualified Data.Text.Lazy                as LT
+import qualified Data.Text.Lazy.Encoding       as LT
 import qualified Prelude                       as P
 
 newtype EncodeParam a = EncodeParam
@@ -178,6 +184,14 @@ bytestring =
 lazyBytestring :: EncodeParam LBS.ByteString
 lazyBytestring =
   LBS.toStrict >$< bytestring
+
+base64Text :: EncodeParam ByteString
+base64Text =
+  (T.decodeUtf8 . B64.encode) >$< text
+
+lazyBase64Text :: EncodeParam LBS.ByteString
+lazyBase64Text =
+  (LT.decodeUtf8 . LB64.encode) >$< lazyText
 
 timeOfDay :: EncodeParam TimeOfDay
 timeOfDay =

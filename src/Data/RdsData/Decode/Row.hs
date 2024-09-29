@@ -1,7 +1,7 @@
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE BlockArguments             #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings          #-}
 
 module Data.RdsData.Decode.Row
   ( DecodeRow(..)
@@ -23,6 +23,8 @@ module Data.RdsData.Decode.Row
   , word64
   , bytestring
   , lazyBytestring
+  , base64Text
+  , lazyBase64Text
   , timeOfDay
   , day
   , ulid
@@ -36,20 +38,20 @@ module Data.RdsData.Decode.Row
   , decodeRows
   ) where
 
-import Control.Monad.Except
-import Control.Monad.State
-import Data.ByteString (ByteString)
-import Control.Monad
-import Data.Functor.Identity ( Identity )
-import Data.Int
-import Data.RdsData.Decode.Value (DecodeValue)
-import Data.RdsData.Types.Value
-import Data.Text
-import Data.Time
-import Data.ULID (ULID)
-import Data.UUID (UUID)
-import Data.Word
-import Prelude hiding (maybe)
+import           Control.Monad
+import           Control.Monad.Except
+import           Control.Monad.State
+import           Data.ByteString               (ByteString)
+import           Data.Functor.Identity         (Identity)
+import           Data.Int
+import           Data.RdsData.Decode.Value     (DecodeValue)
+import           Data.RdsData.Types.Value
+import           Data.Text
+import           Data.Time
+import           Data.ULID                     (ULID)
+import           Data.UUID                     (UUID)
+import           Data.Word
+import           Prelude                       hiding (maybe)
 
 import qualified Data.Aeson                    as J
 import qualified Data.ByteString.Lazy          as LBS
@@ -84,7 +86,7 @@ decodeRowValue :: ()
 decodeRowValue decoder v =
   case DV.decodeValue decoder v of
     Right a -> pure a
-    Left e -> throwError $ "Failed to decode Value: " <> e
+    Left e  -> throwError $ "Failed to decode Value: " <> e
 
 column :: ()
   => DecodeValue a
@@ -167,6 +169,14 @@ lazyBytestring :: DecodeRow LBS.ByteString
 lazyBytestring =
   column DV.lazyBytestring
 
+base64Text :: DecodeRow ByteString
+base64Text =
+  column DV.base64Text
+
+lazyBase64Text :: DecodeRow LBS.ByteString
+lazyBase64Text =
+  column DV.lazyBase64Text
+
 string :: DecodeRow String
 string =
   column DV.string
@@ -179,35 +189,35 @@ timeOfDay :: DecodeRow TimeOfDay
 timeOfDay = do
   t <- text
   case parseTimeM True defaultTimeLocale "%H:%M:%S%Q" (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> throwError $ "Failed to parse TimeOfDay: " <> T.pack (show t)
 
 ulid :: DecodeRow ULID
 ulid = do
   t <- text
   case CONV.textToUlid t of
-    Right a -> pure a
+    Right a  -> pure a
     Left msg -> throwError $ "Failed to parse ULID: " <> msg
 
 utcTime :: DecodeRow UTCTime
 utcTime = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d %H:%M:%S" (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> throwError $ "Failed to parse UTCTime: " <> T.pack (show t)
 
 uuid :: DecodeRow UUID
 uuid = do
   t <- text
   case UUID.fromString (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> throwError $ "Failed to parse UUID: " <> T.pack (show t)
 
 day :: DecodeRow Day
 day = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" (T.unpack t) of
-    Just a -> pure a
+    Just a  -> pure a
     Nothing -> throwError $ "Failed to parse Day: " <> T.pack (show t)
 
 ignore :: DecodeRow ()
