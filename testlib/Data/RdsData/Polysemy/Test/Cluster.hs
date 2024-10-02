@@ -124,7 +124,7 @@ waitUntilRdsDbClusterAvailable :: ()
   -> Sem r ()
 waitUntilRdsDbClusterAvailable dbClusterArn =
   withFrozenCallStack do
-    repeatNWhileM_ 24 $ \_ -> do
+    repeatNWhileM_ 120 $ \_ -> do
       result <- sendAws $
         AWS.newDescribeDBClusters
           & the @"dbClusterIdentifier" .~ Just dbClusterArn
@@ -132,5 +132,5 @@ waitUntilRdsDbClusterAvailable dbClusterArn =
       let mStatus = result ^? the @"dbClusters" . _Just . each . the @"status" . _Just
 
       if mStatus == Just "available"
-        then pure False
+        then threadDelay 1_000_000 >> pure False
         else threadDelay 1_000_000 >> pure True
