@@ -109,11 +109,11 @@ initialiseDb = withFrozenCallStack do
     , "  deployed_by      TEXT NOT NULL,"
     , "  CONSTRAINT valid_ulid_constraint"
     , "    CHECK (ulid::text ~ '^[0-9A-HJKMNP-TV-Z]{26}$')"
-    , ");"
+    , ")"
     ]
 
   executeStatement_
-    "CREATE INDEX IF NOT EXISTS idx_migration_created_at ON migration (created_at);"
+    "CREATE INDEX IF NOT EXISTS idx_migration_created_at ON migration (created_at)"
 
   executeStatement_
-    "CREATE INDEX IF NOT EXISTS idx_migration_deployed_by ON migration (deployed_by);"
+    "CREATE INDEX IF NOT EXISTS idx_migration_deployed_by ON migration (deployed_by)"
