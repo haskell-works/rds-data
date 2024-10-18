@@ -41,6 +41,8 @@ module Data.RdsData.Decode.Value
   , uuid
   , day
 
+  , fail
+
   ) where
 
 import           Amazonka.Data.Base64
@@ -54,7 +56,7 @@ import           Data.Text                     (Text)
 import           Data.Time
 import           Data.UUID                     (UUID)
 import           Data.Word
-import           Prelude                       hiding (maybe, null)
+import           Prelude                       hiding (fail, maybe, null)
 
 import qualified Amazonka.Data.ByteString      as AWS
 import qualified Data.Aeson                    as J
@@ -86,6 +88,10 @@ instance Monad DecodeValue where
   DecodeValue a >>= f = DecodeValue \v -> do
     a' <- a v
     decodeValue (f a') v
+
+fail :: Text -> DecodeValue a
+fail =
+    DecodeValue . const . Left
 
 --------------------------------------------------------------------------------
 
