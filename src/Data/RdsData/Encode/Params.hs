@@ -2,12 +2,15 @@
 
 module Data.RdsData.Encode.Params
   ( EncodeParams(..)
+  , EncodedParams(..)
+  , encode
 
   , rdsValue
 
   , column
 
   , maybe
+  , named
 
   , array
   , bool
@@ -62,9 +65,25 @@ import qualified Data.RdsData.Encode.Param            as EP
 import qualified Data.Text.Lazy                       as LT
 import qualified Prelude                              as P
 
+newtype EncodedParams = EncodedParams
+  { unEncodedParams :: [Param] -> [Param]
+  }
+
+instance Semigroup EncodedParams where
+  EncodedParams f <> EncodedParams g =
+    EncodedParams (f . g)
+
+instance Monoid EncodedParams where
+  mempty =
+    EncodedParams id
+
 newtype EncodeParams a = EncodeParams
   { encodeParams :: a -> [Param] -> [Param]
   }
+
+encode :: EncodeParams a -> a -> EncodedParams
+encode (EncodeParams f) a =
+  EncodedParams (f a)
 
 instance Contravariant EncodeParams where
   contramap f (EncodeParams g) =
@@ -98,6 +117,11 @@ rdsValue =
 column :: EncodeParam a -> EncodeParams a
 column (EncodeParam f) =
   EncodeParams \a -> (f a:)
+
+named :: Text -> EncodeParam a -> EncodeParams a
+named n ep =
+  EncodeParams \a ->
+    (EP.encodeParam (EP.named n ep) a:)
 
 --------------------------------------------------------------------------------
 
