@@ -1,8 +1,8 @@
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE BlockArguments    #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveFunctor     #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 
 {- HLINT ignore "Use <&>" -}
 
@@ -37,16 +37,16 @@ module Data.RdsData.Decode.Array
   , words
   ) where
 
-import Control.Applicative
-import Data.Int
-import Data.RdsData.Internal.Aeson
-import Data.RdsData.Types.Array
-import Data.Text (Text)
-import Data.Time
-import Data.ULID (ULID)
-import Data.UUID (UUID)
-import Data.Word
-import Prelude hiding (maybe, null, words)
+import           Control.Applicative
+import           Data.Int
+import           Data.RdsData.Internal.Aeson
+import           Data.RdsData.Types.Array
+import           Data.Text                     (Text)
+import           Data.Time
+import           Data.ULID                     (ULID)
+import           Data.UUID                     (UUID)
+import           Data.Word
+import           Prelude                       hiding (maybe, null, words)
 
 import qualified Data.Aeson                    as J
 import qualified Data.RdsData.Internal.Convert as CONV
@@ -72,7 +72,7 @@ instance Alternative DecodeArray where
 instance Monad DecodeArray where
   DecodeArray a >>= f = DecodeArray \v -> do
     a' <- a v
-    decodeArray (f a') v
+    (.decodeArray) (f a') v
 
 --------------------------------------------------------------------------------
 
@@ -175,27 +175,27 @@ jsons = do
   ts <- texts
   case traverse (J.eitherDecodeStrict' . T.encodeUtf8) ts of
     Right js -> pure js
-    Left e -> DecodeArray \_ -> Left $ "Failed to decode JSON: " <> T.pack e
+    Left e   -> DecodeArray \_ -> Left $ "Failed to decode JSON: " <> T.pack e
 
 timesOfDay :: DecodeArray [TimeOfDay]
 timesOfDay = do
   ts <- texts
   case traverse (parseTimeM True defaultTimeLocale "%H:%M:%S". T.unpack) ts of
     Just tod -> pure tod
-    Nothing -> DecodeArray \_ -> Left "Failed to decode TimeOfDay"
+    Nothing  -> DecodeArray \_ -> Left "Failed to decode TimeOfDay"
 
 utcTimes :: DecodeArray [UTCTime]
 utcTimes = do
   ts <- texts
   case traverse (parseTimeM True defaultTimeLocale "%Y-%m-%d %H:%M:%S" . T.unpack) ts of
     Just utct -> pure utct
-    Nothing -> DecodeArray \_ -> Left "Failed to decode UTCTime"
+    Nothing   -> DecodeArray \_ -> Left "Failed to decode UTCTime"
 
 days :: DecodeArray [Day]
 days = do
   ts <- texts
   case traverse (parseTimeM True defaultTimeLocale "%Y-%m-%d" . T.unpack) ts of
-    Just d -> pure d
+    Just d  -> pure d
     Nothing -> DecodeArray \_ -> Left "Failed to decode Day"
 
 -- | Decode an array of ULIDs
@@ -205,12 +205,12 @@ ulids :: DecodeArray [ULID]
 ulids = do
   ts <- texts
   case traverse CONV.textToUlid ts of
-    Right u -> pure u
+    Right u  -> pure u
     Left msg -> DecodeArray \_ -> Left $ "Failed to decode UUID: " <> msg
 
 uuids :: DecodeArray [UUID]
 uuids = do
   ts <- texts
   case traverse (UUID.fromString . T.unpack) ts of
-    Just u -> pure u
+    Just u  -> pure u
     Nothing -> DecodeArray \_ -> Left "Failed to decode UUID"

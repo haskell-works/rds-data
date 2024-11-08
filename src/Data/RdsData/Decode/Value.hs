@@ -87,7 +87,7 @@ instance Alternative DecodeValue where
 instance Monad DecodeValue where
   DecodeValue a >>= f = DecodeValue \v -> do
     a' <- a v
-    decodeValue (f a') v
+    (.decodeValue) (f a') v
 
 fail :: Text -> DecodeValue a
 fail =
@@ -125,7 +125,7 @@ array :: DecodeArray a -> DecodeValue a
 array decoder =
   DecodeValue \v ->
     case v of
-      ValueOfArray a -> decodeArray decoder a
+      ValueOfArray a -> decoder.decodeArray a
       _ -> Left $ decodeValueFailedMessage "array" "Array" Nothing v
 
 base64 :: DecodeValue Base64

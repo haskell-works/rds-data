@@ -8,3 +8,6 @@ package amazonka-sso
 
 package amazonka-sts
   ghc-options: -XDuplicateRecordFields
+
+constraints:
+  text < 2.1.2

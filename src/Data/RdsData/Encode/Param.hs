@@ -99,13 +99,13 @@ rdsParam =
 
 maybe :: EncodeParam a -> EncodeParam (Maybe a)
 maybe =
-  EncodeParam . P.maybe (Param Nothing Nothing ValueOfNull) . encodeParam
+  EncodeParam . P.maybe (Param Nothing Nothing ValueOfNull) . (.encodeParam)
 
 --------------------------------------------------------------------------------
 
 array :: EncodeArray a -> EncodeParam a
 array enc =
-  Param Nothing Nothing . ValueOfArray . encodeArray enc >$< rdsParam
+  Param Nothing Nothing . ValueOfArray . enc.encodeArray >$< rdsParam
 
 base64 :: EncodeParam AWS.Base64
 base64 =

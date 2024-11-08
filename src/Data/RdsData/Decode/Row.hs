@@ -84,7 +84,7 @@ decodeRowValue :: ()
   -> Value
   -> m a
 decodeRowValue decoder v =
-  case DV.decodeValue decoder v of
+  case decoder.decodeValue v of
     Right a -> pure a
     Left e  -> throwError $ "Failed to decode Value: " <> e
 
@@ -225,7 +225,7 @@ ignore =
   void $ column DV.rdsValue
 
 decodeRow :: DecodeRow a -> [Value] -> Either Text a
-decodeRow r = evalState (runExceptT (unDecodeRow r))
+decodeRow r = evalState (runExceptT r.unDecodeRow)
 
 decodeRows :: DecodeRow a ->  [[Value]] -> Either Text [a]
 decodeRows r = traverse (decodeRow r)
