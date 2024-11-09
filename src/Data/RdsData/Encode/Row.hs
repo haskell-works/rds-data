@@ -3,6 +3,7 @@
 module Data.RdsData.Encode.Row
   ( EncodeRow(..)
 
+  , encodeRow
   , rdsValue
 
   , column
@@ -38,27 +39,27 @@ module Data.RdsData.Encode.Row
   , word64
   ) where
 
-import Data.ByteString (ByteString)
-import Data.Functor.Contravariant
-import Data.Functor.Contravariant.Divisible
-import Data.Int
-import Data.RdsData.Encode.Array (EncodeArray(..))
-import Data.RdsData.Encode.Value (EncodeValue(..))
-import Data.RdsData.Types.Value
-import Data.Text (Text)
-import Data.Time
-import Data.ULID (ULID)
-import Data.UUID (UUID)
-import Data.Void
-import Data.Word
-import Prelude hiding (maybe, null)
+import           Data.ByteString                      (ByteString)
+import           Data.Functor.Contravariant
+import           Data.Functor.Contravariant.Divisible
+import           Data.Int
+import           Data.RdsData.Encode.Array            (EncodeArray (..))
+import           Data.RdsData.Encode.Value            (EncodeValue (..))
+import           Data.RdsData.Types.Value
+import           Data.Text                            (Text)
+import           Data.Time
+import           Data.ULID                            (ULID)
+import           Data.UUID                            (UUID)
+import           Data.Void
+import           Data.Word
+import           Prelude                              hiding (maybe, null)
 
-import qualified Amazonka.Data.Base64       as AWS
-import qualified Data.Aeson                 as J
-import qualified Data.ByteString.Lazy       as LBS
-import qualified Data.RdsData.Encode.Value  as EV
-import qualified Data.Text.Lazy             as LT
-import qualified Prelude                    as P
+import qualified Amazonka.Data.Base64                 as AWS
+import qualified Data.Aeson                           as J
+import qualified Data.ByteString.Lazy                 as LBS
+import qualified Data.RdsData.Encode.Value            as EV
+import qualified Data.Text.Lazy                       as LT
+import qualified Prelude                              as P
 
 newtype EncodeRow a = EncodeRow
   { encodeRow :: a -> [Value] -> [Value]
@@ -80,10 +81,14 @@ instance Decidable EncodeRow where
   choose f (EncodeRow g) (EncodeRow h) =
     EncodeRow \a ->
       case f a of
-        Left b -> g b
+        Left b  -> g b
         Right c -> h c
   lose f =
     EncodeRow $ absurd . f
+
+encodeRow :: EncodeRow a -> a -> [Value] -> [Value]
+encodeRow =
+  (.encodeRow)
 
 --------------------------------------------------------------------------------
 

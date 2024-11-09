@@ -1,7 +1,7 @@
 cabal-version: 3.6
 
 name:                   rds-data
-version:                0.1.0.0
+version:                0.1.1.0
 synopsis:               Codecs for use with AWS rds-data
 description:            Codecs for use with AWS rds-data.
 category:               Data
@@ -39,11 +39,11 @@ common generic-lens                             { build-depends: generic-lens   
 common hedgehog                                 { build-depends: hedgehog                                 >= 1.4        && < 2      }
 common hedgehog-extras                          { build-depends: hedgehog-extras                          >= 0.6.0.2    && < 0.7    }
 common http-client                              { build-depends: http-client                              >= 0.5.14     && < 0.8    }
-common hw-polysemy-amazonka                     { build-depends: hw-polysemy:amazonka                     >= 0.3        && < 0.4    }
-common hw-polysemy-core                         { build-depends: hw-polysemy:core                         >= 0.3        && < 0.4    }
-common hw-polysemy-hedgehog                     { build-depends: hw-polysemy:hedgehog                     >= 0.3        && < 0.4    }
-common hw-polysemy-testcontainers-localstack    { build-depends: hw-polysemy:testcontainers-localstack    >= 0.3        && < 0.4    }
-common hw-prelude                               { build-depends: hw-prelude                               >= 0.0.0.1    && < 0.1    }
+common hw-polysemy-amazonka                     { build-depends: hw-polysemy:amazonka                     >= 0.3.1      && < 0.4    }
+common hw-polysemy-core                         { build-depends: hw-polysemy:core                         >= 0.3.1      && < 0.4    }
+common hw-polysemy-hedgehog                     { build-depends: hw-polysemy:hedgehog                     >= 0.3.1      && < 0.4    }
+common hw-polysemy-testcontainers-localstack    { build-depends: hw-polysemy:testcontainers-localstack    >= 0.3.1      && < 0.4    }
+common hw-prelude                               { build-depends: hw-prelude                               >= 0.0.1.0    && < 0.1    }
 common microlens                                { build-depends: microlens                                >= 0.4.13     && < 0.5    }
 common mtl                                      { build-depends: mtl                                      >= 2          && < 3      }
 common optparse-applicative                     { build-depends: optparse-applicative                     >= 0.18.1.0   && < 0.19   }
@@ -70,7 +70,21 @@ common rds-data-testlib                         { build-depends: rds-data:testli
 common project-config
   default-language:     Haskell2010
   default-extensions:   BlockArguments
+                        DataKinds
+                        DeriveGeneric
+                        DuplicateRecordFields
+                        FlexibleContexts
+                        FlexibleInstances
                         ImportQualifiedPost
+                        LambdaCase
+                        NoFieldSelectors
+                        OverloadedRecordDot
+                        OverloadedStrings
+                        RankNTypes
+                        ScopedTypeVariables
+                        TypeApplications
+                        TypeOperators
+                        TypeSynonymInstances
 
   ghc-options:          -Wall
                         -Wcompat

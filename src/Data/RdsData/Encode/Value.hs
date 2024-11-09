@@ -36,25 +36,25 @@ module Data.RdsData.Encode.Value
   , word64
   ) where
 
-import Data.ByteString (ByteString)
-import Data.Functor.Contravariant
-import Data.Int
-import Data.RdsData.Encode.Array
-import Data.RdsData.Types.Value
-import Data.Text (Text)
-import Data.Time
-import Data.ULID (ULID)
-import Data.UUID (UUID)
-import Data.Word
-import Prelude hiding (maybe, null)
+import           Data.ByteString               (ByteString)
+import           Data.Functor.Contravariant
+import           Data.Int
+import           Data.RdsData.Encode.Array
+import           Data.RdsData.Types.Value
+import           Data.Text                     (Text)
+import           Data.Time
+import           Data.ULID                     (ULID)
+import           Data.UUID                     (UUID)
+import           Data.Word
+import           Prelude                       hiding (maybe, null)
 
-import qualified Amazonka.Bytes                 as AWS
-import qualified Amazonka.Data.Base64           as AWS
-import qualified Data.Aeson                     as J
-import qualified Data.ByteString.Lazy           as LBS
-import qualified Data.RdsData.Internal.Convert  as CONV
-import qualified Data.Text.Lazy                 as LT
-import qualified Prelude                        as P
+import qualified Amazonka.Bytes                as AWS
+import qualified Amazonka.Data.Base64          as AWS
+import qualified Data.Aeson                    as J
+import qualified Data.ByteString.Lazy          as LBS
+import qualified Data.RdsData.Internal.Convert as CONV
+import qualified Data.Text.Lazy                as LT
+import qualified Prelude                       as P
 
 newtype EncodeValue a = EncodeValue
   { encodeValue :: a -> Value
@@ -74,13 +74,13 @@ rdsValue =
 
 maybe :: EncodeValue a -> EncodeValue (Maybe a)
 maybe =
-  EncodeValue . P.maybe ValueOfNull . encodeValue
+  EncodeValue . P.maybe ValueOfNull . (.encodeValue)
 
 --------------------------------------------------------------------------------
 
 array :: EncodeArray a -> EncodeValue a
 array enc =
-  ValueOfArray . encodeArray enc >$< rdsValue
+  ValueOfArray . enc.encodeArray >$< rdsValue
 
 base64 :: EncodeValue AWS.Base64
 base64 =

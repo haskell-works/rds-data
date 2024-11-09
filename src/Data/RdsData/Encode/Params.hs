@@ -3,6 +3,7 @@
 module Data.RdsData.Encode.Params
   ( EncodeParams(..)
   , EncodedParams(..)
+  , encodeParams
   , encode
 
   , rdsValue
@@ -66,7 +67,7 @@ import qualified Data.Text.Lazy                       as LT
 import qualified Prelude                              as P
 
 newtype EncodedParams = EncodedParams
-  { unEncodedParams :: [Param] -> [Param]
+  { run :: [Param] -> [Param]
   }
 
 instance Semigroup EncodedParams where
@@ -78,8 +79,12 @@ instance Monoid EncodedParams where
     EncodedParams id
 
 newtype EncodeParams a = EncodeParams
-  { encodeParams :: a -> [Param] -> [Param]
+  { run :: a -> [Param] -> [Param]
   }
+
+encodeParams :: EncodeParams a -> a -> [Param] -> [Param]
+encodeParams =
+  (.run)
 
 encode :: EncodeParams a -> a -> EncodedParams
 encode (EncodeParams f) a =
@@ -121,7 +126,7 @@ column (EncodeParam f) =
 named :: Text -> EncodeParam a -> EncodeParams a
 named n ep =
   EncodeParams \a ->
-    (EP.encodeParam (EP.named n ep) a:)
+    ((.encodeParam) (EP.named n ep) a:)
 
 --------------------------------------------------------------------------------
 
