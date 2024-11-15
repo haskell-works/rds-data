@@ -5,6 +5,7 @@
 
 module Data.RdsData.Decode.Row
   ( DecodeRow(..)
+  , ToRows(..)
   , integer
   , int
   , int8
@@ -55,6 +56,7 @@ import           Prelude                       hiding (maybe)
 
 import qualified Data.Aeson                    as J
 import qualified Data.ByteString.Lazy          as LBS
+import           Data.RdsData.Decode.ToRows
 import qualified Data.RdsData.Decode.Value     as DV
 import qualified Data.RdsData.Internal.Convert as CONV
 import qualified Data.Text                     as T
@@ -62,7 +64,7 @@ import qualified Data.Text.Lazy                as LT
 import qualified Data.UUID                     as UUID
 
 newtype DecodeRow a = DecodeRow
-  { unDecodeRow :: ExceptT Text (StateT [Value] Identity) a
+  { run :: ExceptT Text (StateT [Value] Identity) a
   }
   deriving (Applicative, Functor, Monad, MonadState [Value], MonadError Text)
 
@@ -225,7 +227,7 @@ ignore =
   void $ column DV.rdsValue
 
 decodeRow :: DecodeRow a -> [Value] -> Either Text a
-decodeRow r = evalState (runExceptT r.unDecodeRow)
+decodeRow r = evalState (runExceptT r.run)
 
-decodeRows :: DecodeRow a ->  [[Value]] -> Either Text [a]
-decodeRows r = traverse (decodeRow r)
+decodeRows :: ToRows res => DecodeRow a -> res -> Either Text [a]
+decodeRows r = traverse (decodeRow r) . toRows
