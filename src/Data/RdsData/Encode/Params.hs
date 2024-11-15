@@ -50,6 +50,7 @@ import           Data.Functor.Contravariant.Divisible
 import           Data.Int
 import           Data.RdsData.Encode.Array            (EncodeArray (..))
 import           Data.RdsData.Encode.Param            (EncodeParam (..))
+import           Data.RdsData.Types.EncodedParams
 import           Data.RdsData.Types.Param
 import           Data.Text                            (Text)
 import           Data.Time
@@ -65,18 +66,6 @@ import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.RdsData.Encode.Param            as EP
 import qualified Data.Text.Lazy                       as LT
 import qualified Prelude                              as P
-
-newtype EncodedParams = EncodedParams
-  { run :: [Param] -> [Param]
-  }
-
-instance Semigroup EncodedParams where
-  EncodedParams f <> EncodedParams g =
-    EncodedParams (f . g)
-
-instance Monoid EncodedParams where
-  mempty =
-    EncodedParams id
 
 newtype EncodeParams a = EncodeParams
   { run :: a -> [Param] -> [Param]
