@@ -125,6 +125,7 @@ library codecs
                         Data.RdsData.Encode.Param
                         Data.RdsData.Encode.Params
                         Data.RdsData.Encode.Row
+                        Data.RdsData.Encode.ToSqlParameters
                         Data.RdsData.Encode.Value
                         Data.RdsData.Internal.Aeson
                         Data.RdsData.Internal.Convert
@@ -134,6 +135,7 @@ library codecs
                         Data.RdsData.Orphans
                         Data.RdsData.Types
                         Data.RdsData.Types.Array
+                        Data.RdsData.Types.EncodedParams
                         Data.RdsData.Types.Param
                         Data.RdsData.Types.Value
   other-modules:        Paths_rds_data
