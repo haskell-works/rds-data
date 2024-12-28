@@ -13,7 +13,7 @@ maintainer:             newhoggy@gmail.com
 copyright:              2024 John Ky
 license:                BSD-3-Clause
 license-file:           LICENSE
-tested-with:            GHC == 9.6.6
+tested-with:            GHC == 9.6.6, GHC == 9.4.8
 build-type:             Simple
 extra-source-files:     README.md
 
@@ -39,10 +39,10 @@ common generic-lens                             { build-depends: generic-lens   
 common hedgehog                                 { build-depends: hedgehog                                 >= 1.4        && < 2      }
 common hedgehog-extras                          { build-depends: hedgehog-extras                          >= 0.6.0.2    && < 0.7    }
 common http-client                              { build-depends: http-client                              >= 0.5.14     && < 0.8    }
-common hw-polysemy-amazonka                     { build-depends: hw-polysemy:amazonka                     >= 0.3.1      && < 0.4    }
-common hw-polysemy-core                         { build-depends: hw-polysemy:core                         >= 0.3.1      && < 0.4    }
-common hw-polysemy-hedgehog                     { build-depends: hw-polysemy:hedgehog                     >= 0.3.1      && < 0.4    }
-common hw-polysemy-testcontainers-localstack    { build-depends: hw-polysemy:testcontainers-localstack    >= 0.3.1      && < 0.4    }
+common hw-polysemy-amazonka                     { build-depends: hw-polysemy:amazonka                     >= 0.3.1.1    && < 0.4    }
+common hw-polysemy-core                         { build-depends: hw-polysemy:core                         >= 0.3.1.1    && < 0.4    }
+common hw-polysemy-hedgehog                     { build-depends: hw-polysemy:hedgehog                     >= 0.3.1.1    && < 0.4    }
+common hw-polysemy-testcontainers-localstack    { build-depends: hw-polysemy:testcontainers-localstack    >= 0.3.1.1    && < 0.4    }
 common hw-prelude                               { build-depends: hw-prelude                               >= 0.0.1.0    && < 0.1    }
 common microlens                                { build-depends: microlens                                >= 0.4.13     && < 0.5    }
 common mtl                                      { build-depends: mtl                                      >= 2          && < 3      }
