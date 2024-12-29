@@ -11,3 +11,8 @@ package amazonka-sts
 
 constraints:
   text < 2.1.2
+
+allow-newer:
+  base,
+  bytestring,
+  containers,
