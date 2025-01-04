@@ -33,6 +33,7 @@ module Data.RdsData.Decode.Value
   , lazyText
   , lazyBytestring
   , base64Text
+  , base64TextLenient
   , lazyBase64Text
   , string
   , json
@@ -261,6 +262,12 @@ base64Text = do
   case B64.decode b64 of
     Right a -> pure a
     Left e  -> decodeValueFailed "base64-text" "Text" (Just (T.pack e))
+
+base64TextLenient :: DecodeValue ByteString
+base64TextLenient = do
+  t <- text
+  let b64 = T.encodeUtf8 t
+  pure $ B64.decodeLenient b64
 
 lazyBase64Text :: DecodeValue LBS.ByteString
 lazyBase64Text = do
