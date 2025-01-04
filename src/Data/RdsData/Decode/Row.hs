@@ -24,6 +24,7 @@ module Data.RdsData.Decode.Row
   , bytestring
   , lazyBytestring
   , base64Text
+  , base64TextLenient
   , lazyBase64Text
   , timeOfDay
   , day
@@ -172,6 +173,10 @@ lazyBytestring =
 base64Text :: DecodeRow ByteString
 base64Text =
   column DV.base64Text
+
+base64TextLenient :: DecodeRow ByteString
+base64TextLenient =
+  column DV.base64TextLenient
 
 lazyBase64Text :: DecodeRow LBS.ByteString
 lazyBase64Text =
