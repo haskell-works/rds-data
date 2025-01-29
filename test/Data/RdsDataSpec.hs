@@ -79,7 +79,7 @@ hprop_stub = H.propertyOnce $ do
       { TT.bigint             = 1234567890
       , TT.bigserial          = 1
       , TT.boolean            = True
-      , TT.bytea              = "EjQ="
+      , TT.bytea              = "\DC24"
       , TT.character          = "A"
       , TT.characters         = "AB"
       , TT.varyingCharacter   = "C"

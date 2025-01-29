@@ -16,7 +16,6 @@ import           Amazonka.Env                           (Env)
 import qualified Amazonka.RDSData.BatchExecuteStatement as AWS
 import qualified Amazonka.RDSData.ExecuteStatement      as AWS
 import qualified Amazonka.Types                         as AWS
-import           Control.Monad.IO.Class                 (MonadIO)
 import           Data.Generics.Product.Any
 import           Data.RdsData.Aws
 import           Data.RdsData.Polysemy.Error
