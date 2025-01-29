@@ -60,7 +60,6 @@ import           Data.Word
 import           Lens.Micro
 import           Prelude                       hiding (maybe, null)
 
-import qualified Amazonka.Bytes                as AWS
 import qualified Amazonka.Data.Base64          as AWS
 import qualified Amazonka.RDSData              as AWS
 import qualified Data.Aeson                    as J
@@ -179,7 +178,7 @@ lazyText =
 
 bytestring :: EncodeParam ByteString
 bytestring =
-  (AWS.Base64 . AWS.encodeBase64) >$< base64
+  AWS.Base64 >$< base64
 
 lazyBytestring :: EncodeParam LBS.ByteString
 lazyBytestring =

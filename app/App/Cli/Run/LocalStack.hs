@@ -21,7 +21,6 @@ import qualified App.Console                                       as T
 import qualified Control.Concurrent                                as IO
 import qualified Control.Concurrent.STM                            as IO
 import qualified Control.Exception                                 as IO
-import           Control.Monad.IO.Class                            (MonadIO (..))
 import qualified Control.Monad.Trans.Resource                      as IO
 import qualified Control.Monad.Trans.Resource.Internal             as IO
 import           Data.Acquire                                      (ReleaseType (ReleaseNormal))

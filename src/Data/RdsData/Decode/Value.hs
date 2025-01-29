@@ -58,7 +58,6 @@ import           Data.UUID                     (UUID)
 import           Data.Word
 import           Prelude                       hiding (fail, maybe, null)
 
-import qualified Amazonka.Data.ByteString      as AWS
 import qualified Data.Aeson                    as J
 import qualified Data.ByteString.Base64        as B64
 import qualified Data.ByteString.Base64.Lazy   as LB64
@@ -248,7 +247,7 @@ word64 =
 
 bytestring :: DecodeValue ByteString
 bytestring =
-  AWS.toBS <$> base64
+  unBase64 <$> base64
 
 lazyText :: DecodeValue LT.Text
 lazyText =
