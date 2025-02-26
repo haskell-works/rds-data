@@ -20,7 +20,6 @@ import           Data.RdsData.Aws
 import           Data.RdsData.Polysemy.Core
 import           Data.RdsData.Polysemy.Error
 import           Data.RdsData.Polysemy.Migration
-import qualified Data.Text                       as T
 import           HaskellWorks.Polysemy
 import           HaskellWorks.Polysemy.Amazonka
 import           HaskellWorks.Polysemy.File
@@ -71,12 +70,12 @@ reportFatal (AppError msg) =
 runUpCmd :: CLI.UpCmd -> IO ()
 runUpCmd cmd = runApp cmd do
   initialiseDb
-    & trap @AWS.Error (throw . AppError . T.pack . show)
-    & trap @RdsDataError (throw . AppError . T.pack . show)
+    & trap @AWS.Error (throw . AppError . tshow)
+    & trap @RdsDataError (throw . AppError . tshow)
 
   migrateUp (cmd ^. the @"migrationFp")
-    & trap @AWS.Error (throw . AppError . T.pack . show)
-    & trap @IOException (throw . AppError . T.pack . show)
-    & trap @JsonDecodeError (throw . AppError . T.pack . show)
-    & trap @RdsDataError (throw . AppError . T.pack . show)
-    & trap @YamlDecodeError (throw . AppError . T.pack . show)
+    & trap @AWS.Error (throw . AppError . tshow)
+    & trap @IOException (throw . AppError . tshow)
+    & trap @JsonDecodeError (throw . AppError . tshow)
+    & trap @RdsDataError (throw . AppError . tshow)
+    & trap @YamlDecodeError (throw . AppError . tshow)

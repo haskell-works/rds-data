@@ -1,7 +1,7 @@
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE BlockArguments    #-}
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module App.AWS.Env
   ( awsLogger
@@ -10,23 +10,24 @@ module App.AWS.Env
   , setEnvEndpoint
   ) where
 
-import App.Show                     (tshow)
-import Control.Concurrent           (myThreadId)
-import Control.Monad                (when, forM_)
-import Data.ByteString              (ByteString)
-import Data.ByteString.Builder      (toLazyByteString)
-import Data.Function                ((&))
-import Data.Generics.Product.Any    (the)
-import Lens.Micro                   ((.~), (%~))
-import Network.HTTP.Client          (HttpException (..), HttpExceptionContent (..))
+import           Control.Concurrent         (myThreadId)
+import           Control.Monad              (forM_, when)
+import           Data.ByteString            (ByteString)
+import           Data.ByteString.Builder    (toLazyByteString)
+import           Data.Function              ((&))
+import           Data.Generics.Product.Any  (the)
+import           Data.RdsData.Internal.Show (tshow)
+import           Lens.Micro                 ((%~), (.~))
+import           Network.HTTP.Client        (HttpException (..),
+                                             HttpExceptionContent (..))
 
 import qualified Amazonka                   as AWS
+import qualified App.Console                as CIO
 import qualified Data.ByteString            as BS
 import qualified Data.ByteString.Lazy       as L
 import qualified Data.ByteString.Lazy       as LBS
 import qualified Data.ByteString.Lazy.Char8 as LC8
 import qualified Data.Text.Encoding         as T
-import qualified App.Console                as CIO
 import qualified System.IO                  as IO
 
 setEnvEndpoint :: Maybe (ByteString, Int, Bool) -> IO AWS.Env -> IO AWS.Env

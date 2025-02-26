@@ -27,6 +27,7 @@ import           Data.Acquire                                      (ReleaseType 
 import           Data.Generics.Product.Any
 import           Data.RdsData.Aws
 import           Data.RdsData.Default
+import           Data.RdsData.Internal.Show
 import           Data.RdsData.Polysemy.Test.Cluster
 import           Data.RdsData.Polysemy.Test.Env
 import           GHC.IORef                                         (IORef)
@@ -118,7 +119,7 @@ runLocalStackCmd _ = do
           lsEp <- getLocalStackEndpoint container
           jotShow_ lsEp -- Localstack endpoint
           let port = lsEp ^. the @"port"
-          let exampleCmd = "awslocal --endpoint-url=http://localhost:" <> show port <> " s3 ls"
+          let exampleCmd = "awslocal --endpoint-url=http://localhost:" <> tshow port <> " s3 ls"
           -- Example awslocal command:
           jot_ exampleCmd
           jotShowM_ $ ask @StatementContext

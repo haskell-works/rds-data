@@ -106,6 +106,7 @@ library codecs
                       , bytestring
                       , contravariant
                       , generic-lens
+                      , hw-prelude
                       , microlens
                       , mtl
                       , text
@@ -130,6 +131,7 @@ library codecs
                         Data.RdsData.Internal.Aeson
                         Data.RdsData.Internal.Convert
                         Data.RdsData.Internal.Maybe
+                        Data.RdsData.Internal.Show
                         Data.RdsData.Migration
                         Data.RdsData.Migration.Types
                         Data.RdsData.Orphans
@@ -254,7 +256,6 @@ executable rds-data
                         App.Config
                         App.Console
                         App.Options
-                        App.Show
   hs-source-dirs:       app
   ghc-options:          -threaded "-with-rtsopts=-I0 -A16m -N2 --disable-delayed-os-memory-return"
 
