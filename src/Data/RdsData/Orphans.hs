@@ -21,4 +21,3 @@ instance FromJSON ULID where
 
 instance ToJSON ULID where
   toJSON = J.toJSON . show
-

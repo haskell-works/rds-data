@@ -19,6 +19,7 @@ import           Data.Generics.Product.Any
 import           Data.Int
 import           Data.Maybe
 import           Data.Monoid
+import           Data.RdsData.Internal.Show
 import           Data.RdsData.Types
 import           Data.Text                  (Text)
 import           Data.Time
@@ -242,7 +243,7 @@ runExampleCmd cmd = do
           )
         ]
 
-    liftIO $ IO.putStrLn $ "===> " <> show req
+    liftIO $ T.putStrLn $ "===> " <> tshow req
 
     res <- AWS.send envAws req
 

@@ -46,6 +46,7 @@ import           Data.ByteString               (ByteString)
 import           Data.Functor.Identity         (Identity)
 import           Data.Int
 import           Data.RdsData.Decode.Value     (DecodeValue)
+import           Data.RdsData.Internal.Show
 import           Data.RdsData.Types.Value
 import           Data.Text
 import           Data.Time
@@ -192,7 +193,7 @@ timeOfDay = do
   t <- text
   case parseTimeM True defaultTimeLocale "%H:%M:%S%Q" (T.unpack t) of
     Just a  -> pure a
-    Nothing -> throwError $ "Failed to parse TimeOfDay: " <> T.pack (show t)
+    Nothing -> throwError $ "Failed to parse TimeOfDay: " <> tshow t
 
 ulid :: DecodeRow ULID
 ulid = do
@@ -206,21 +207,21 @@ utcTime = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d %H:%M:%S" (T.unpack t) of
     Just a  -> pure a
-    Nothing -> throwError $ "Failed to parse UTCTime: " <> T.pack (show t)
+    Nothing -> throwError $ "Failed to parse UTCTime: " <> tshow t
 
 uuid :: DecodeRow UUID
 uuid = do
   t <- text
   case UUID.fromString (T.unpack t) of
     Just a  -> pure a
-    Nothing -> throwError $ "Failed to parse UUID: " <> T.pack (show t)
+    Nothing -> throwError $ "Failed to parse UUID: " <> tshow t
 
 day :: DecodeRow Day
 day = do
   t <- text
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" (T.unpack t) of
     Just a  -> pure a
-    Nothing -> throwError $ "Failed to parse Day: " <> T.pack (show t)
+    Nothing -> throwError $ "Failed to parse Day: " <> tshow t
 
 ignore :: DecodeRow ()
 ignore =

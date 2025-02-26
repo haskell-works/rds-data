@@ -51,6 +51,7 @@ import           Data.ByteString               (ByteString)
 import           Data.Int
 import           Data.RdsData.Decode.Array     (DecodeArray (..))
 import           Data.RdsData.Internal.Aeson
+import           Data.RdsData.Internal.Show
 import           Data.RdsData.Types.Value
 import           Data.Text                     (Text)
 import           Data.Time
@@ -288,8 +289,8 @@ timeOfDay :: DecodeValue TimeOfDay
 timeOfDay = do
   t <- text
   case parseTimeM True defaultTimeLocale "%H:%M:%S%Q" (T.unpack t) of
-    Just a -> pure a
-    Nothing -> decodeValueFailed "timeOfDay" "TimeOfDay" (Just (T.pack (show t)))
+    Just a  -> pure a
+    Nothing -> decodeValueFailed "timeOfDay" "TimeOfDay" (Just (tshow t))
 
 utcTime :: DecodeValue UTCTime
 utcTime = do
