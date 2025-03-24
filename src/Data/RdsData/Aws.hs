@@ -4,7 +4,7 @@
 module Data.RdsData.Aws
   ( AwsResourceArn(AwsResourceArn),
     AwsSecretArn(AwsSecretArn),
-    Database(Database),
+    Database(..),
     StatementContext(StatementContext),
     newStatementContext,
   ) where
@@ -19,7 +19,7 @@ newtype AwsResourceArn = AwsResourceArn Text
 newtype AwsSecretArn = AwsSecretArn Text
   deriving (Eq, Generic, IsString, Show)
 
-newtype Database = Database Text
+newtype Database = Database { unDatabase :: Text }
   deriving (Eq, Generic, IsString, Show)
 
 data StatementContext = StatementContext
