@@ -1,6 +1,12 @@
 packages: .
 
+package amazonka-rds
+  ghc-options: -XDuplicateRecordFields
+
 package amazonka-rds-data
+  ghc-options: -XDuplicateRecordFields
+
+package amazonka-secretsmanager
   ghc-options: -XDuplicateRecordFields
 
 package amazonka-sso
