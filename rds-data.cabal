@@ -87,6 +87,36 @@ common project-config
                         -Wredundant-constraints
                         -Wunused-imports
 
+library
+  import:               base,
+                        project-config,
+                        rds-data-codecs,
+  reexported-modules:   Data.RdsData,
+                        Data.RdsData.Aws,
+                        Data.RdsData.Decode.Array,
+                        Data.RdsData.Decode.Row,
+                        Data.RdsData.Decode.ToRows,
+                        Data.RdsData.Decode.Value,
+                        Data.RdsData.Default,
+                        Data.RdsData.Encode.Array,
+                        Data.RdsData.Encode.Param,
+                        Data.RdsData.Encode.Params,
+                        Data.RdsData.Encode.Row,
+                        Data.RdsData.Encode.ToSqlParameters,
+                        Data.RdsData.Encode.Value,
+                        Data.RdsData.Internal.Aeson,
+                        Data.RdsData.Internal.Convert,
+                        Data.RdsData.Internal.Maybe,
+                        Data.RdsData.Internal.Show,
+                        Data.RdsData.Migration,
+                        Data.RdsData.Migration.Types,
+                        Data.RdsData.Orphans,
+                        Data.RdsData.Types,
+                        Data.RdsData.Types.Array,
+                        Data.RdsData.Types.EncodedParams,
+                        Data.RdsData.Types.Param,
+                        Data.RdsData.Types.Value,
+
 library codecs
   import:               base, project-config
                       , aeson
